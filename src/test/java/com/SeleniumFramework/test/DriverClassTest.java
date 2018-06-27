@@ -78,24 +78,26 @@ public class DriverClassTest extends SampleSauceTestBase {
 	}
 
 	private void executeForChrome() throws Exception {
-
+			platform = "Chrome";
+			tmpPlatform = platform;
 		if (environment.equalsIgnoreCase("Desktop_Web")) {
 			String ss;
-			ss = "SeleniumFramework" + File.separator + "lib" + File.separator + "chromedriver.exe";
+			ss = "lib" + File.separator + "chromedriver.exe";
 			System.out.println("SS: " + ss);
 			System.setProperty("webdriver.chrome.driver", ss);
-			System.setProperty(ChromeDriverService.CHROME_DRIVER_EXE_PROPERTY, ss);
-			ChromeDriverService service = ChromeDriverService.createDefaultService();
-			ChromeOptions options = new ChromeOptions();
-			options.addArguments("test-type");
-			options.addArguments("--start-maximized");
-			options.addArguments("--disable-extensions");
-			driver = new ChromeDriver(service, options);
+			DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+//			System.setProperty(ChromeDriverService.CHROME_DRIVER_EXE_PROPERTY, ss);
+//			ChromeDriverService service = ChromeDriverService.createDefaultService();
+//			ChromeOptions options = new ChromeOptions();
+//			options.addArguments("test-type");
+//			options.addArguments("--start-maximized");
+//			options.addArguments("--disable-extensions");
+//			driver = new ChromeDriver(service, options);
 
 //			selenium = new com.thoughtworks.selenium.webdriven.WebDriverBackedSelenium(driver, "http://www.google.com");
 			Thread.sleep(3000);
 //			System.out.println("Platform for URL: " + selenium.getEval("navigator.userAgent"));
-			Thread.sleep(5000);
+//			Thread.sleep(5000);
 //			System.out.println("TesInfo: Platform for URL: " + selenium.getEval("navigator.userAgent"));
 			String rv;// = selenium.getEval("navigator.userAgent");
 			try {
@@ -104,7 +106,7 @@ public class DriverClassTest extends SampleSauceTestBase {
 //				} else {
 //					rvg = rvg + "_FF" + rv.split("Firefox/")[1];
 //				}
-				rv = driver.getCapabilities().getBrowserName()+"_"+driver.getCapabilities().getVersion();
+				rv = capabilities.getCapability("browserName")+"_"+capabilities.getCapability("version");
 						//"FF_" + rv.split("Firefox/")[1];
 
 			} catch (Exception e) {
@@ -113,13 +115,13 @@ public class DriverClassTest extends SampleSauceTestBase {
 			}
 			tmpBrowserVer = rv;
 			PREVIOUS_TEST_CASE = "Before Test Execution";
-			driver.quit();
+			//driver.quit();
 			testSuite(moduleName, rv);
 
 			LOG_VAR = 1;
 			TEST_STEP_COUNT = 1;
 			failedStep = " ";
-			service.stop();
+			//service.stop();
 			
 			try{driver.quit();}catch(Exception e){};
 		}

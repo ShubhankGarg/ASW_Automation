@@ -64,7 +64,7 @@ import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
-import org.openqa.selenium.htmlunit.HtmlUnitDriver;
+//import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.interactions.HasInputDevices;
@@ -85,8 +85,8 @@ import com.SeleniumFramework.commons.util.ConnectionHelper;
 import com.SeleniumFramework.commons.util.LIFOStack;
 import com.SeleniumFramework.commons.util.ResponseHelper;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.gargoylesoftware.htmlunit.WebWindow;
-import com.gargoylesoftware.htmlunit.javascript.background.JavaScriptExecutor;
+//import com.gargoylesoftware.htmlunit.WebWindow;
+//import com.gargoylesoftware.htmlunit.javascript.background.JavaScriptExecutor;
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.DatabaseClientFactory.Authentication;
@@ -183,7 +183,7 @@ public class FunctionalLibrary extends ReportLibrary {
 	public int synctime, Longsynctime;
 	public HashMap<String, String> dataholder = new HashMap<String, String>(); // HashMap
 	
-	//By Vinay
+	//By Shubhank
 	protected LIFOStack<HSSFSheet> readScriptSheets = new LIFOStack<HSSFSheet>(5);
 	protected LIFOStack<Integer> currTestRowPtrs = new LIFOStack<Integer>(5);
 	
@@ -230,7 +230,7 @@ public class FunctionalLibrary extends ReportLibrary {
 		// Keywords
 		// added
 		// by
-		// Naveen
+		// Shubhank
 		// DB functions
 		runQuery, putValueFromQuery, verifyDBtextMatches, verifyDBtextSmallerThan, verifyDBtextGreaterThan,
 		// Text comparison
@@ -273,7 +273,8 @@ public class FunctionalLibrary extends ReportLibrary {
 		StoreHIXTokenFromGurrilla, Secques, verifyTextContains,SelectByValue,createOptumIDandTDstore,HandleForgotPasswordSecques,VerifyMaskedPasswordField,VerifyTextNotPresent,
 
 		//XML Keywords
-		WriteXMLFromDB,VerifyFromXML,VerifyTextNotPresentInDD,captureScreenshots,SaveToNotepad ,updateQuery;
+		WriteXMLFromDB,VerifyFromXML,VerifyTextNotPresentInDD,captureScreenshots,SaveToNotepad ,updateQuery, VerifyDropDownOptionsCount;
+		
 
 	}
 
@@ -620,12 +621,6 @@ public class FunctionalLibrary extends ReportLibrary {
 			case verifyDBtextSmallerThan:
 				verifyDBtextSmallerThan(feType, objName, fValue);
 				break;
-			case StoreHIXTokenFromGurrilla:
-				StoreHIXTokenFromGurrilla(feType, objName, fValue);
-				break;
-				//Tricky Keyword --it will create the list of all checkbox and radio button for matching xpath and select them accroding to the values passed , Multiple values can be passed using ","
-
-
 			case verifyTextContains:
 				funcVerifyTextContains(feType, objName, fValue);
 				break;
@@ -664,7 +659,11 @@ public class FunctionalLibrary extends ReportLibrary {
 			case SaveToNotepad:
                 funcSaveToNotepad(feType, objName, fValue);
                 break;
-
+                
+			case VerifyDropDownOptionsCount:
+				funcVerifyDropDownOptionsCount(feType, objName, fValue);
+				break;
+				
 			case RandomNameGenerator:
                 
 				funcRandomNameGenerator(feType, objName ,fValue);
@@ -1041,12 +1040,14 @@ private void updateQueryDatabase(String fvalue) throws Exception
 			System.out.println("SS: " + ss);
 			System.setProperty("webdriver.chrome.driver", ss);
 			System.setProperty(ChromeDriverService.CHROME_DRIVER_EXE_PROPERTY, ss);
-			ChromeDriverService service = ChromeDriverService.createDefaultService();
-			ChromeOptions options = new ChromeOptions();
+	/*		ChromeDriverService service = ChromeDriverService.createDefaultService();
+	        ChromeOptions options = new ChromeOptions();
 			options.addArguments("test-type");
 			options.addArguments("--start-maximized");
-			options.addArguments("--disable-extensions");
-			driver = new ChromeDriver(service, options);
+			options.addArguments("--disable-extensions");*/
+			driver = new ChromeDriver();
+			//driver = new ChromeDriver();
+			
 		}
 		if (platform.equalsIgnoreCase("sauce")) {
 			try {
@@ -1473,10 +1474,10 @@ private void updateQueryDatabase(String fvalue) throws Exception
 
 	private void funSwitchWinLatest(String feType, String objName, String fValue) throws InterruptedException {
 		try {
-			//////////////////////////// naveen
+			//////////////////////////// Shubhank
 			driver.switchTo()
 			.window(new ArrayList<String>(driver.getWindowHandles()).get(driver.getWindowHandles().size() - 1));
-			///////////////////////// naveen code end
+			///////////////////////// Shubhank code end
 
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -1946,7 +1947,29 @@ private void updateQueryDatabase(String fvalue) throws Exception
 		}
 
 	}
+	
+	
+	private void funcVerifyDropDownOptionsCount (String feType, String objName, String fValue) throws InterruptedException {
+		int Actualddcount;
+		WebElement element;
 
+		element = funcFindElement(feType, objName);
+		Select dd= new Select(element);
+		Actualddcount=dd.getOptions().size();
+
+		if(Actualddcount == Integer.parseInt(fValue))
+		{
+			System.out.println("Count Matched");
+			failFlag = 0;
+		}
+		else
+		{
+			System.out.println("Count not Matched");	
+			failFlag = 1;
+			LOG_VAR = 1;
+		}
+
+	}
 	private void funTextpresent(String feType, String objName, String fValue) throws InterruptedException {
 		String validator_gbl;
 		boolean Flag = driver.getPageSource().contains(fValue);// selenium.isTextPresent(fValue);
@@ -2279,74 +2302,6 @@ private void updateQueryDatabase(String fvalue) throws Exception
 		}
 		return flag;
 	}
-
-	/**
-	 * @Description Retrive Token from Gurrilla mail and store in passed
-	 *              variable name
-	 * @param fetype
-	 * @param objName
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
-	private void StoreHIXTokenFromGurrilla(String fetype, String objName, String fValue) throws Exception {
-		WebDriver d = null;
-		SAUCE_USERNAME = System.getenv("SAUCE_USERNAME");
-		SAUCE_ACCESS_KEY = System.getenv("SAUCE_ACCESS_KEY");
-		DesiredCapabilities cap1 = new DesiredCapabilities();
-		if (System.getenv("JOB_NAME") == null)
-			cap1.setCapability("build", applicationName + "_Automation");
-		else
-			cap1.setCapability("build", System.getenv("JOB_NAME") + "__" + System.getenv("BUILD_NUMBER"));
-		cap1.setCapability("name", strModuleName + "_" + testName);
-		cap1.setBrowserName("Internet Explorer");
-		cap1.setVersion("11");
-		cap1.setCapability("OS",Platform.WINDOWS);
-
-		cap1.setCapability("parent-tunnel", "sauce_admin");
-		cap1.setCapability("tunnelIdentifier", "OptumSharedTunnel-Stg");
-
-		d = new RemoteWebDriver(
-				new URL("http://" + SAUCE_USERNAME + ":" + SAUCE_ACCESS_KEY + "@ondemand.saucelabs.com:80/wd/hub"), cap1);
-		//          }
-		d.get("https://www.guerrillamail.com/");
-		try {
-			(new WebDriverWait(d, 5)).until(ExpectedConditions.presenceOfElementLocated(
-					By.linkText("Click here to accept this statement and access the Internet."))).click();
-		} catch (Exception e) {
-			System.err.println("No 'Click here to accept this statement and access the Internet.' link");
-		}
-		try {
-			(new WebDriverWait(d, 5)).until(ExpectedConditions.presenceOfElementLocated(
-					By.linkText("I AGREE"))).click();
-		} catch (Exception e) {
-			System.err.println("No 'I Agree' link");
-		}
-
-		try {
-			(new WebDriverWait(d, 30))
-			.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[@id = 'inbox-id']")));
-			d.findElement(By.xpath("//span[@id = 'inbox-id']")).click();
-			d.findElement(By.xpath("//span[@id = 'inbox-id']/input")).clear();
-			d.findElement(By.xpath("//span[@id = 'inbox-id']/input")).sendKeys(MAHIX_UserEmailId.split("@")[0]);
-			d.findElement(By.xpath("//span[@id='inbox-id']/button")).click();
-			(new WebDriverWait(d, 30)).until(ExpectedConditions.presenceOfElementLocated(
-					By.xpath("//td[contains(text(),'Confirm your Optum ID email address')]")));
-			Thread.sleep(5000);
-			d.findElement(By.xpath("//td[contains(text(),'Confirm your Optum ID email address')]")).click();
-			String str = (new WebDriverWait(d, 5))
-					.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class = 'email_body']")))
-					.getText();
-			d.quit();
-			str = str.substring(143, 153);
-			System.out.println(str);
-			System.out.println("10 Digit code:" + str);
-			dataholder.put(fValue, str);
-		} catch (Exception e) {
-			System.err.println(d.getPageSource());
-			throw e;
-		}
-	}
-
 
 	private boolean funcVerify(String fetype, String objName) throws IOException, InterruptedException {
 		WebElement element;
@@ -3830,6 +3785,24 @@ private void updateQueryDatabase(String fvalue) throws Exception
 				actualElementValues.add(actualElementValue);
 				if (actualElementValue.equalsIgnoreCase(value)) {
 					element.click();
+					found = true;
+					break;
+				}
+			}
+		}
+
+	}
+	
+	public void funcVerifyListValues(String feType, String objName, String fvalue) throws InterruptedException {
+		Boolean found = false;
+		List<String> actualElementValues = new ArrayList<String>();
+		List<String> ExpValue = Arrays.asList(fvalue.split(","));
+		List<WebElement> ActValue = funcFindElements(feType, objName);
+		for (String value : ExpValue) {
+			found = false;
+			for (WebElement element : ActValue) {
+				String actualElementValue = element.getAttribute("value");
+				if (actualElementValue.equalsIgnoreCase(value)) {
 					found = true;
 					break;
 				}

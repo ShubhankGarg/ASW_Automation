@@ -246,7 +246,7 @@ public class ReportLibrary extends ExcelFileUtil {
 	public void sendLog(String Trace, String testCaseName, LIFOStack<Integer> currTestRowPtrs,
 			int currTestRowPtr ) {
 			
-			// By Vinay
+			// By Shubhank
 			String stepId;
 			String elementsInStack = currTestRowPtrs.getElementsWithoutPopOut();
 			if(elementsInStack==""){
@@ -409,7 +409,7 @@ public class ReportLibrary extends ExcelFileUtil {
                                  File CapturedScreenshots = new File(scrshot);
                                  try{
                                         ImageIO.write(screenShoot.getImage(),"PNG",CapturedScreenshots);
-                                        // FileUtils.copyFile(CapturedScreenshots, new File("./SeleniumFramework/"+File.separator+"./Ritu/"+zipdate+".png"));
+                                        // FileUtils.copyFile(CapturedScreenshots, new File("./SeleniumFramework/"+File.separator+"./Shubhank/"+zipdate+".png"));
                                         System.out.println("image captured");
 
                                  }
@@ -453,7 +453,7 @@ public class ReportLibrary extends ExcelFileUtil {
        }
 
 	
-	//by Vinay
+	//by Shubhank
 	public void f_sendFunctionalResult(String strModulename, String TCID, String strTestcasename,
 			String strScreen, String moduleNameWithStatus)
 			throws Exception {

@@ -1,4 +1,0 @@
-#Writing the zipcode and today's date
-#Wed Feb 04 00:28:37 IST 2015
-today=2015-02-04
-country=INDIA

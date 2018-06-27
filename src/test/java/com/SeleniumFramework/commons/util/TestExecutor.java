@@ -426,7 +426,7 @@ public class TestExecutor extends FunctionalLibrary {
 				//If test data sheet not being used	
 				if (inputSheet.trim().isEmpty()) {
 					
-					//by Vinay
+					//by Shubhank
 					if(action.equals("CallFunction")){
 						
 						String functionName  = getCellValue(readScriptSheet, tempStartRow, 6).trim();
@@ -839,7 +839,7 @@ public class TestExecutor extends FunctionalLibrary {
 							}
 							// fieldName=getCellValue(readLoopSheet,
 							// dataListPointer+tempCounter,FIELD_NAME_CLMN_NO);//readloopsheet.getRow(Temp_Counter).getCell(ColumnNumber).getStringCellValue().trim();
-							fieldName = loopedFieldName; // Naveen
+							fieldName = loopedFieldName; // Shubhank
 							System.out.println("FieldName: " + fieldName);
 						}
 						// Get Object and its Element Type from Object

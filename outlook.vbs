@@ -14,9 +14,9 @@ msgbox arg1
                "My <b><i>HTML</i></b> message text!" & _
                "</body>" & _
                "</html>"
-   ' blnSuccessful = FnSafeSendEmail("pankaj_behl@uhc.com", "My Message Subject", strHTML,"C:\DocGPS_Automation\DocGPSResult_Jul 1, 2011 11_31_07 'PM.txt;C:\DocGPS_Automation\DocGPSResult_Jul 2, 2011 1_43_18 PM.txt","","")    
+   ' blnSuccessful = FnSafeSendEmail("write2shubhank@gmail.com", "My Message Subject", strHTML,"C:\DocGPS_Automation\DocGPSResult_Jul 1, 2011 11_31_07 'PM.txt;C:\DocGPS_Automation\DocGPSResult_Jul 2, 2011 1_43_18 PM.txt","","")    
 
-   blnSuccessful = FnSafeSendEmail("pankaj_behl@uhc.com", "My Message Subject", strHTML,arg1,"","") 
+   blnSuccessful = FnSafeSendEmail("write2shubhank@gmail.com", "My Message Subject", strHTML,arg1,"","") 
 
     'A more complex example...
     'blnSuccessful = FnSafeSendEmail( _
