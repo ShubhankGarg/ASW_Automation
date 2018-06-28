@@ -1115,12 +1115,12 @@ private void updateQueryDatabase(String fvalue) throws Exception
 		wait = new WebDriverWait(driver, 120);
 
 		// MODIFIED FOR MAHIX
-		if (MAHIX_UserEmailId.isEmpty()) {
+	/*	if (MAHIX_UserEmailId.isEmpty()) {
 			MAHIX_UserId = "erin" + Math.random();
 			MAHIX_UserPassword = "Test123#";
 			MAHIX_UserEmailId = MAHIX_UserId + "@sharklasers.com";
 		}
-
+*/
 		// END OF MODIFICATION FOR MAHIX
 
 		failFlag = 1;
@@ -2163,16 +2163,8 @@ private void updateQueryDatabase(String fvalue) throws Exception
 
 	private void funcInput(String fetype, String objName, String fValue) throws Exception {
 		WebElement element;
-		if (objName.equals("userProfile.middleName")) {
-			System.out.println("");
-		}
 		element = (new WebDriverWait(driver, 40)).until(ExpectedConditions.visibilityOf(funcFindElement(fetype, objName)));
 		highLight(element);
-		if (objName.equals("userNameId_input") && !(driver.getCurrentUrl().contains("agent")))
-			fValue = MAHIX_UserId;
-		if (objName.equals("emailAddressId_input") && !(driver.getCurrentUrl().contains("agent")))
-			fValue = MAHIX_UserEmailId;
-
 		if (dataholder.containsKey(fValue)) {
 			fValue = dataholder.get(fValue);
 		}
@@ -2193,31 +2185,6 @@ private void updateQueryDatabase(String fvalue) throws Exception
 
 	private void funcClick(String fetype, String objName, String fValue) throws Exception {
             try {
-                   String question, answer = "";
-                   if (objName.equals("//a[contains(text(),'Create Customer Profile')]") || objName.equals("//a[contains(text(),'Add New Member')]") || objName.equals("//span[@id='profiletabs_tab1_tab']") || objName.equals("//a[contains(text(),'Manage Customer')]")) {
-                         if (returnIfElementPresent(By.id("challengeQuestionLabelId")) != null) {
-                                question = returnIfElementPresent(By.id("challengeQuestionLabelId")).getText();
-                                if (question.toLowerCase().contains("favorite color"))
-                                        //answer = "color1";
-                                		answer = "green";
-                                		//answer = "cc";
-                                if (question.toLowerCase().contains("best friend"))
-                                	answer = "optum";
-                                	//answer = "name1";
-                                	//answer = "bb";
-                                if (question.toLowerCase().contains("phone number"))
-                                       //answer = "phone1";
-                                	    answer = "1234";
-                         	   			//answer = "12";
-                                returnIfElementPresent(By.id("challengeQuestionList[0].userAnswer")).sendKeys(answer);
-                                Thread.sleep(2000);
-                                returnIfElementPresent(By.id("authQuesSubmitButton")).click();
-                         }
-                   }
-                   // (new WebDriverWait(driver,
-                   // 5)).until(ExpectedConditions.elementToBeClickable(funcFindElement(fetype,
-                   // objName)))
-                   // .click();
                    for (int i=0; i<15; i++){ 
                             try {
                              Thread.sleep(2000);
