@@ -84,6 +84,10 @@ import org.w3c.dom.*;
 import com.SeleniumFramework.commons.util.ConnectionHelper;
 import com.SeleniumFramework.commons.util.LIFOStack;
 import com.SeleniumFramework.commons.util.ResponseHelper;
+
+import org.sikuli.script.FindFailed;
+import org.sikuli.script.Pattern;
+import org.sikuli.script.Screen;
 import com.fasterxml.jackson.databind.JsonNode;
 //import com.gargoylesoftware.htmlunit.WebWindow;
 //import com.gargoylesoftware.htmlunit.javascript.background.JavaScriptExecutor;
@@ -273,13 +277,13 @@ public class FunctionalLibrary extends ReportLibrary {
 		StoreHIXTokenFromGurrilla, Secques, verifyTextContains,SelectByValue,createOptumIDandTDstore,HandleForgotPasswordSecques,VerifyMaskedPasswordField,VerifyTextNotPresent,
 
 		//XML Keywords
-		WriteXMLFromDB,VerifyFromXML,VerifyTextNotPresentInDD,captureScreenshots,SaveToNotepad ,updateQuery, VerifyDropDownOptionsCount;
+		WriteXMLFromDB,VerifyFromXML,VerifyTextNotPresentInDD,captureScreenshots,SaveToNotepad ,updateQuery, VerifyDropDownOptionsCount, InputWindowPopup,ClickWindowPopup;
 		
 
 	}
 
 	public void keyword(String objName, String feType, String fValue, String action, String fieldName)
-			throws InterruptedException, IOException {
+ {
 
 		try {
 			synctime = 1000;
@@ -665,14 +669,20 @@ public class FunctionalLibrary extends ReportLibrary {
 				break;
 				
 			case RandomNameGenerator:
-                
 				funcRandomNameGenerator(feType, objName ,fValue);
-                         break;
+				break;
 
-                       case updateQuery:
+			case updateQuery:
 				updateQueryDatabase(fValue);
 				break;
-	
+			
+            case InputWindowPopup:
+            	funcInputInWindowPopup(feType, objName ,fValue);
+            	break;
+            
+            case ClickWindowPopup:
+            	funcClickInWindowPopup(feType, objName ,fValue);
+            	break;	
 
 			}
 		} catch (Exception e) {
@@ -3869,6 +3879,28 @@ private void updateQueryDatabase(String fvalue) throws Exception
 		// This will make your value reflect in Report
 		fieldValue = MAHIX_UserId;
 		System.out.println("New fieldValue: " + MAHIX_UserId);
+	}
+	
+	
+	public void funcInputInWindowPopup(String feType, String objName, String fValue)  throws InterruptedException {
+		Pattern p=new Pattern(objName);
+		Screen s=new Screen();
+		try {
+			s.type(p, fValue);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void funcClickInWindowPopup(String feType, String objName, String fValue)  throws InterruptedException {
+		Pattern p=new Pattern(objName);
+		Screen s=new Screen();
+		try {
+			s.click(p);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void funcRandomNameGenerator(String feType, String objName, String fValue) throws InterruptedException {
