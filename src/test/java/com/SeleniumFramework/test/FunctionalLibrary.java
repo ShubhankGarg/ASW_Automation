@@ -2197,7 +2197,7 @@ private void updateQueryDatabase(String fvalue) throws Exception
                    WebElement ele = (new WebDriverWait(driver, 30))
                                 .until(ExpectedConditions.elementToBeClickable(funcFindElement(fetype, objName)));
                    String type = ele.getAttribute("type");
-                   if (type != null && (type.equalsIgnoreCase("checkbox") || type.equalsIgnoreCase("radio")))
+                   if (type != null && (type.equalsIgnoreCase("checkbox") || type.equalsIgnoreCase("radio") || objName.contains("Import UDA")))
                          ele.sendKeys(Keys.SPACE);
                    else {
                          JavascriptExecutor executor = (JavascriptExecutor) driver;

@@ -76,13 +76,13 @@
               <dependency>
                      <groupId>org.apache.poi</groupId>
                      <artifactId>poi</artifactId>
-                     <version>3.15</version>
+                     <version>3.17</version>
               </dependency>
 
               <dependency>
                      <groupId>org.apache.poi</groupId>
                      <artifactId>poi-ooxml</artifactId>
-                     <version>3.11</version>
+                     <version>3.17</version>
               </dependency>
 
               <dependency>
@@ -180,7 +180,12 @@
                      <groupId>ru.yandex.qatools.ashot</groupId>
                      <artifactId>ashot</artifactId>
                      <version>1.5.2</version>
-              </dependency>
+			  </dependency>
+			  <dependency>
+					<groupId>com.sikulix</groupId>
+					<artifactId>sikulixapi</artifactId>
+					<version>1.1.2</version>
+			  </dependency>
 
 
               <!-- <dependency> <groupId>com.perfectomobile</groupId> <artifactId>pm-webdriver</artifactId> 

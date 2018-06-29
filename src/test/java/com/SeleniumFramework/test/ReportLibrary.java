@@ -203,10 +203,10 @@ public class ReportLibrary extends ExcelFileUtil {
 		Sheet sheet = wb.getSheetAt(0);
 		CellStyle style = wb.createCellStyle();
 		style.setFillForegroundColor(HSSFColor.GREY_50_PERCENT.index);
-		style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+		//style.setFillPattern(CellStyle.SOLID_FOREGROUND);
 		Font font = wb.createFont();
 		font.setFontName(HSSFFont.FONT_ARIAL);
-		font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		//font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
 		font.setColor(HSSFColor.BLACK.index);
 		style.setFont(font);
 		Cell cell;
@@ -1304,7 +1304,7 @@ public class ReportLibrary extends ExcelFileUtil {
 		cellA1.setCellValue(TCID);
 		HSSFCellStyle cellStyle = workbook.createCellStyle();
 		cellStyle.setFillForegroundColor(HSSFColor.GOLD.index);
-		cellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		//cellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
 		cellA1.setCellStyle(cellStyle);
 
 		HSSFCell cellA2 = row.createCell(1);
