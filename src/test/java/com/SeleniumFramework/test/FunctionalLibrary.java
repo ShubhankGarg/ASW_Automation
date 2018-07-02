@@ -34,17 +34,16 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hslf.model.Sheet;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.util.StringUtil;
 import org.apache.xmlbeans.impl.store.Path;
 import org.json.JSONException;
@@ -2613,7 +2612,7 @@ private void updateQueryDatabase(String fvalue) throws Exception
 
 		FileInputStream fis = new FileInputStream(fvalue);
 		Workbook wb = WorkbookFactory.create(fis);
-		String sheetName = ((Path) fis).getFileName().toString();
+		String sheetName = ((Path)fis).getFileName().toString();
 		Sheet sh = wb.getSheet(sheetName);
 		Row row = sh.getRow(0);
 		Cell c = row.getCell(0);
