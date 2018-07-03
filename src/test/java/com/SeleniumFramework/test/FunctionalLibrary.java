@@ -10,6 +10,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.security.Key;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -275,7 +276,7 @@ public class FunctionalLibrary extends ReportLibrary {
 		StoreHIXTokenFromGurrilla, Secques, verifyTextContains,SelectByValue,createOptumIDandTDstore,HandleForgotPasswordSecques,VerifyMaskedPasswordField,VerifyTextNotPresent,
 
 		//XML Keywords
-		WriteXMLFromDB,VerifyFromXML,VerifyTextNotPresentInDD,captureScreenshots,SaveToNotepad ,updateQuery, VerifyDropDownOptionsCount, InputWindowPopup,ClickWindowPopup,
+		WriteXMLFromDB,VerifyFromXML,VerifyTextNotPresentInDD,captureScreenshots,SaveToNotepad ,updateQuery, VerifyDropDownOptionsCount, InputWindowPopup,ClickWindowPopup,VerifyListValues,
 		
 		VerifyFileDownload, SelectByText, GetExcelColCount, GetExcelData;
 		
@@ -542,16 +543,6 @@ public class FunctionalLibrary extends ReportLibrary {
 				// Thread.sleep(Longsynctime);
 				break;
 
-			case ValidateResponse:
-				funValidateResponse(inputSheet, feType, objName, fValue);
-				// Thread.sleep(Longsynctime);
-				break;
-
-			case ValidateResponseExcel:
-				funValidateResponseRxcel(inputSheet, fieldName, fValue);
-				// Thread.sleep(Longsynctime);
-				break;
-
 			case AngJsClick:
 				funcAngJSClick(feType, objName, fValue);
 				// Thread.sleep(Longsynctime);
@@ -695,9 +686,14 @@ public class FunctionalLibrary extends ReportLibrary {
             case GetExcelData:
             	funGetExcelData(fValue);
             	break;
+            
             case SelectByText:
             	funcSelectByText(feType, objName, fValue);
             	break;
+            
+            case VerifyListValues:
+            	funcVerifyListValues(feType, objName ,fValue);
+                break;	
 
 
 			}
@@ -762,200 +758,6 @@ public class FunctionalLibrary extends ReportLibrary {
 		}
 		return client;
 	}
-
-	private void funValidateResponse(String sheet, String feType, String objName, String fValue)
-			throws IOException, InterruptedException {
-
-		String Outputparam = fValue;
-
-		String[] Value = sheet.split("#");
-
-		String Outputparam_Sheet = Value[0];
-		String ResponseID = Value[1];
-
-		String Outputfile = "WebServicesAutomation" + File.separator + "Output.xls";
-		// fileOut = new FileOutputStream(Outputfile);
-		// workbook = new HSSFWorkbook();
-		// worksheet = workbook.getSheet("ServiceName");
-
-		FileInputStream afis = new FileInputStream(Outputfile);
-		POIFSFileSystem apoifs = new POIFSFileSystem(afis);
-		HSSFWorkbook aworkbook = new HSSFWorkbook(apoifs);
-		HSSFSheet areadsheet = aworkbook.getSheet(Outputparam_Sheet);
-		String ExpectedValue = "";
-		WebElement element;
-		element = funcFindElement(feType, objName);
-
-		String TagName = element.getTagName();
-
-		if (TagName.equalsIgnoreCase("input") || TagName.equalsIgnoreCase("select")) {
-
-			ExpectedValue = element.getAttribute("value");
-		} else {
-			ExpectedValue = element.getAttribute("innertext");
-			if (ExpectedValue == null) {
-				ExpectedValue = element.getText();
-			}
-		}
-		int FIELD_NAME_CLMN_CNTR = 0;
-		int FIELD_NAME_CLMN_NO = 0;
-		int rowposition = 0;
-		boolean Status = false;
-		String getFieldNameColumnHeader;
-		String OutputparamValue = " ";
-		String Rowstatus = "true";
-
-		while (rowposition < 500) {
-			getFieldNameColumnHeader = getCellValue(areadsheet, rowposition, FIELD_NAME_CLMN_CNTR);
-
-			if (getFieldNameColumnHeader.equalsIgnoreCase(ResponseID)) {
-				Rowstatus = "true";
-
-				while (FIELD_NAME_CLMN_CNTR < 500 && Rowstatus != "false") {
-					getFieldNameColumnHeader = getCellValue(areadsheet, rowposition, FIELD_NAME_CLMN_CNTR);
-
-					if (getFieldNameColumnHeader.equalsIgnoreCase(Outputparam)) {
-						FIELD_NAME_CLMN_NO = FIELD_NAME_CLMN_CNTR;
-
-						OutputparamValue = getCellValue(areadsheet, rowposition + 1, FIELD_NAME_CLMN_NO);
-
-						if (OutputparamValue.contains(".")) {
-							String ValueA = OutputparamValue.substring(0, 4);
-
-							OutputparamValue = ValueA;
-						} else if (Outputparam.contains("ProgramValue")) {
-							if (OutputparamValue.equals("5")) {
-								OutputparamValue = "Declined to Respond";
-							} else if (OutputparamValue.equals("6")) {
-								OutputparamValue = "Response Not required";
-							} else if (OutputparamValue.equals("7")) {
-								OutputparamValue = "Does not Apply";
-							} else if (OutputparamValue.equals("8")) {
-								OutputparamValue = "Unable to calculate score";
-							} else if (OutputparamValue.equals("9")) {
-								OutputparamValue = "N/A";
-							}
-
-						}
-						Status = true;
-						break;
-					}
-
-					else {
-						FIELD_NAME_CLMN_CNTR = FIELD_NAME_CLMN_CNTR + 1;
-					}
-
-				}
-			} else {
-				Rowstatus = "false";
-			}
-
-			if (!Status) {
-				rowposition = rowposition + 1;
-				FIELD_NAME_CLMN_CNTR = 0;
-
-				// break;
-			} else {
-				break;
-
-			}
-		}
-
-		if (ExpectedValue.contains(OutputparamValue)) {
-			System.out.println("Expected Parameter Value : " + ExpectedValue);
-			System.out.println("TestInfo : " + OutputparamValue + " " + "Parameter Found and Matching ");
-
-		} else {
-			System.out.println("Expected Parameter Value : " + ExpectedValue);
-			System.out.println("TestInfo : " + OutputparamValue + " " + "Parameter Not Found ");
-
-		}
-
-	}
-
-	private void funValidateResponseRxcel(String Outsheet, String Testsheet, String fValue)
-			throws IOException, InterruptedException {
-
-		String Outputparam = fValue;
-
-		String[] Value = Outsheet.split("#");
-
-		String Outputparam_Sheet = Value[0];
-		String ResponseID = Value[1];
-
-		String Outputfile = "WebServicesAutomation" + File.separator + "Output.xls";
-
-		String[] TestSheetValue = Testsheet.split("#");
-
-		String TestRow = TestSheetValue[0];
-		String TestColumn = TestSheetValue[1];
-
-		String ExpectedValue = funGetDatafromExcel(TestRow, TestColumn);
-
-		FileInputStream afis = new FileInputStream(Outputfile);
-		POIFSFileSystem apoifs = new POIFSFileSystem(afis);
-		HSSFWorkbook aworkbook = new HSSFWorkbook(apoifs);
-		HSSFSheet areadsheet = aworkbook.getSheet(Outputparam_Sheet);
-
-		int FIELD_NAME_CLMN_CNTR = 0;
-		int FIELD_NAME_CLMN_NO = 0;
-		int rowposition = 0;
-		boolean Status = false;
-		String getFieldNameColumnHeader;
-		String OutputparamValue = " ";
-		String Rowstatus = "true";
-
-		while (rowposition < 500) {
-			getFieldNameColumnHeader = getCellValue(areadsheet, rowposition, FIELD_NAME_CLMN_CNTR);
-
-			if (getFieldNameColumnHeader.equalsIgnoreCase(ResponseID)) {
-				Rowstatus = "true";
-
-				while (FIELD_NAME_CLMN_CNTR < 500 && Rowstatus != "false") {
-					getFieldNameColumnHeader = getCellValue(areadsheet, rowposition, FIELD_NAME_CLMN_CNTR);
-
-					if (getFieldNameColumnHeader.equalsIgnoreCase(Outputparam)) {
-						FIELD_NAME_CLMN_NO = FIELD_NAME_CLMN_CNTR;
-
-						OutputparamValue = getCellValue(areadsheet, rowposition + 1, FIELD_NAME_CLMN_NO);
-						Status = true;
-						break;
-					}
-
-					else {
-						FIELD_NAME_CLMN_CNTR = FIELD_NAME_CLMN_CNTR + 1;
-					}
-
-				}
-			} else {
-				Rowstatus = "false";
-
-			}
-
-			if (!Status) {
-				rowposition = rowposition + 1;
-				FIELD_NAME_CLMN_CNTR = 0;
-
-				// break;
-			} else {
-				break;
-
-			}
-		}
-
-		if (ExpectedValue.contains(OutputparamValue)) {
-			System.out.println("Expected Parameter Value : " + ExpectedValue);
-			System.out.println("TestInfo : " + OutputparamValue + " " + "Parameter Found and Matching ");
-
-		} else {
-			System.out.println("Expected Parameter Value : " + ExpectedValue);
-			System.out.println("TestInfo : " + OutputparamValue + " " + "Parameter Not Found ");
-			failFlag = 0;
-			LOG_VAR = 0;
-		}
-
-	}
-
 
 private void updateQueryDatabase(String fvalue) throws Exception 
 		{
@@ -2608,9 +2410,9 @@ private void updateQueryDatabase(String fvalue) throws Exception
 				+ " on Screen: " + screenName);
 	}
 	
-	private String funGetExcelData(String fvalue) throws InvalidFormatException, IOException {
+	private void funGetExcelData(String fvalue) throws InvalidFormatException, IOException {
 
-		FileInputStream fis = new FileInputStream(fvalue);
+		/*FileInputStream fis = new FileInputStream(fvalue);
 		Workbook wb = WorkbookFactory.create(fis);
 		String sheetName = ((Path)fis).getFileName().toString();
 		Sheet sh = wb.getSheet(sheetName);
@@ -2619,7 +2421,7 @@ private void updateQueryDatabase(String fvalue) throws Exception
 		c.getCellTypeEnum();
 		String data = c.getStringCellValue();
 		data = data.toString();
-		return data;
+		return data;*/
 		}
 
 	private void funGetColCount(String excelPath) throws InvalidFormatException, Exception {
@@ -2633,7 +2435,7 @@ private void updateQueryDatabase(String fvalue) throws Exception
 
 
 	// Verify if a file is downloaded
-		public boolean funcVerifyFileDownload(String feType, String objName, String fvalue) throws Exception {
+	public boolean funcVerifyFileDownload(String feType, String objName, String fvalue) throws Exception {
 		// objName = download path
 		// fvalue = File Name
 		WebElement elem = funcFindElement(feType, objName);
@@ -2641,13 +2443,12 @@ private void updateQueryDatabase(String fvalue) throws Exception
 		Thread.sleep(1000);
 		elem.click();
 		Thread.sleep(1000);
-		Path p = Paths.get(fvalue);
-		String fileName = p.getFileName().toString();
+		Path p = (Path) Paths.get(fvalue);
+		String fileName = ((java.nio.file.Path) p).getFileName().toString();
 		int index = fvalue.lastIndexOf("\\");
 		String filePath = fvalue.substring(0, index);
 		File dir = new File(filePath);
 		File[] dirContents = dir.listFiles();
-
 		for (int i = 0; i < dirContents.length; i++) {
 		if (dirContents[i].getName().equals(fileName)) {
 		// File has been found, it can now be deleted:
@@ -3860,22 +3661,25 @@ private void updateQueryDatabase(String fvalue) throws Exception
 
 	}
 	
-	public void funcVerifyListValues(String feType, String objName, String fvalue) throws InterruptedException {
-		Boolean found = false;
-		List<String> actualElementValues = new ArrayList<String>();
+	public void funcVerifyListValues(String feType, String objName, String fvalue) throws InterruptedException {		
 		List<String> ExpValue = Arrays.asList(fvalue.split(","));
 		List<WebElement> ActValue = funcFindElements(feType, objName);
-		for (String value : ExpValue) {
-			found = false;
-			for (WebElement element : ActValue) {
-				String actualElementValue = element.getAttribute("value");
-				if (actualElementValue.equalsIgnoreCase(value)) {
-					found = true;
-					break;
-				}
-			}
+		List<String> actualResult = new ArrayList<String>();
+		for (int j=0; j<ActValue.size(); j++){
+		    actualResult.add(ActValue.get(j).getAttribute("innerText"));
 		}
-
+		System.out.println(actualResult);
+		System.out.println(ExpValue);
+		for(int i=0;i<ExpValue.size();i++) {			
+		    if(actualResult.get(i).trim().equalsIgnoreCase(ExpValue.get(i).trim())) {
+		        System.out.println("Expected Value and Actual Values are matched ");
+		    }else {
+		    	failFlag = 0;
+				LOG_VAR = 0;
+		        System.out.println("Expected Value "+ ExpValue.get(i).trim() + "and Actual Values are mismatched"+actualResult.get(i));
+		        break;
+		    }
+		}
 	}
 	
 	public void funcVerifyMaskedpasswordField(String feType, String objName, String fvalue) throws InterruptedException {
