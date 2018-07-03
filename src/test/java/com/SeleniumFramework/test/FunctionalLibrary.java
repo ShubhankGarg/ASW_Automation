@@ -249,7 +249,7 @@ public class FunctionalLibrary extends ReportLibrary {
 
 		SelectDDByValTxt, SelectDDByInd, // Select operations
 
-		HoldelementText, GenerateAndHoldSSN,SendelementValue, Geteleproperty, Asserteleproperty, // Data
+		HoldelementText, SendelementValue, Geteleproperty, Asserteleproperty, // Data
 		// Hold
 		// and
 		// Verification
@@ -266,7 +266,7 @@ public class FunctionalLibrary extends ReportLibrary {
 
 		TypeRandomNbr, HandleAlert, KeyEvent, GetPreviousDate, RandomNameGenerator,
 
-		ClosePDF, JscriptExecutor, VerifyTableRowCount, MouseHover, CloseReminder, JsClick, UncheckAllSelectbyIndex, OptionalClick, CloseAddEditAlerts, SwitchToframe, // Other
+		ClosePDF, JscriptExecutor, VerifyTableRowCount, MouseHover, CloseReminder, JsClick, UncheckAllSelectbyIndex, OptionalClick, CloseAddEditAlerts, SwitchToframe,VerifyGridColumnValues, // Other
 		// Keywords
 		SwitchToWindowLatest, SwitchToFrameDefault,
 
@@ -276,7 +276,7 @@ public class FunctionalLibrary extends ReportLibrary {
 		StoreHIXTokenFromGurrilla, Secques, verifyTextContains,SelectByValue,createOptumIDandTDstore,HandleForgotPasswordSecques,VerifyMaskedPasswordField,VerifyTextNotPresent,
 
 		//XML Keywords
-		WriteXMLFromDB,VerifyFromXML,VerifyTextNotPresentInDD,captureScreenshots,SaveToNotepad ,updateQuery, VerifyDropDownOptionsCount, InputWindowPopup,ClickWindowPopup,VerifyListValues,
+		WriteXMLFromDB,VerifyFromXML,VerifyTextNotPresentInDD,captureScreenshots,SaveToNotepad ,updateQuery, VerifyDropDownOptionsCount, InputWindowPopup,ClickWindowPopup,ClickMouseHover,VerifyListValues,
 		
 		VerifyFileDownload, SelectByText, GetExcelColCount, GetExcelData;
 		
@@ -396,10 +396,6 @@ public class FunctionalLibrary extends ReportLibrary {
 			case HoldelementText:
 				funHoldvalue(feType, objName, fValue);
 				break;
-			
-			case GenerateAndHoldSSN:     
-                funGenerateAndHoldSSN(feType, objName, fValue);     
-                break; 
 	
 			case SendelementValue:
 				funSendValue(feType, objName, fValue);
@@ -488,7 +484,7 @@ public class FunctionalLibrary extends ReportLibrary {
 				break;
 
 			case switchToDefaultContent:
-				funSwitchframeDef(feType, objName, fValue);
+				funSwitchframeDef(fValue);
 				break;
 
 			case ClosePDF:
@@ -673,7 +669,15 @@ public class FunctionalLibrary extends ReportLibrary {
             
             case ClickWindowPopup:
             	funcClickInWindowPopup(feType, objName ,fValue);
+            	break;
+            	
+            case ClickMouseHover:
+            	funcClickMouseHover(feType, objName ,fValue);            	
             	break;	
+            
+            case VerifyGridColumnValues:
+            	 funcVerifyGridColumnValues(feType, objName ,fValue);
+            	 break;
             
             case VerifyFileDownload:
             	funcVerifyFileDownload(feType, objName, fValue);
@@ -1292,13 +1296,25 @@ private void updateQueryDatabase(String fvalue) throws Exception
 
 	// funSwitchframe
 
-	private void funSwitchframe(String feType, String objName, String fValue) throws Exception {
-		try {
-			wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(fValue));
-		} catch (Exception e) {
-			throw new Exception("Frame: " + fValue + " not available to select. Is it nested?");
-		}
-	}
+    private void funSwitchframe(String feType, String objName, String fValue) throws Exception {
+        try {
+                List<WebElement> frames = driver.findElements(By.tagName("iframe"));
+                System.out.println(frames.size());
+                
+                for(int i = 0; i<= frames.size(); i++) {
+                        try {
+                                driver.switchTo().frame(i);
+                                System.out.println("switched to frame");
+                                if (frames.get(i).getAttribute("title").equals(fValue)) {
+                                        break;
+                        }
+                        } catch (Exception e) {
+                                System.out.println("frame not found!!");
+                        }
+                }
+        } catch (Exception e) {
+        }
+}
 
 	private void funSwitchWinLatest(String feType, String objName, String fValue) throws InterruptedException {
 		try {
@@ -1318,7 +1334,7 @@ private void updateQueryDatabase(String fvalue) throws Exception
 		}
 	}
 
-	private void funSwitchframeDef(String feType, String objName, String fValue) throws InterruptedException {
+	private void funSwitchframeDef(String fValue) throws InterruptedException {
 
 		try {
 			driver.switchTo().defaultContent();
@@ -1661,15 +1677,7 @@ private void updateQueryDatabase(String fvalue) throws Exception
                         }
                 
         }
-      
-      private void funGenerateAndHoldSSN(String feType, String objName, String fValue) throws InterruptedException {     
-               String ssn = "2" + (new Random().nextInt(9999999) + 10000000);     
-    	       System.out.println("TestInfo : SSN NO to be used is : " + " " + ssn);     
-    	       dataholder.put(fValue, ssn); // Store in HashTable in Key/Value //   
-    	       Thread.sleep(2000);
-    	       currentDataCell.setCellValue(ssn);     
-    	            fieldValue = ssn;     
-          }  
+       
 
 	private void verifyMatchesText(String feType, String objName, String fValue) throws InterruptedException {
 		WebElement element;
@@ -2028,6 +2036,18 @@ private void updateQueryDatabase(String fvalue) throws Exception
             }
      }
 
+    private void funcClickMouseHover(String fetype, String objName, String fValue) throws Exception {
+        Actions action = new Actions(driver);
+        try {
+                
+                WebElement element = funcFindElement(fetype, objName);
+                wait.until(ExpectedConditions.visibilityOf(element));// Explicit Wait
+                action.moveToElement(element).click().build().perform();
+                
+        } catch (Exception e) {
+                throw new Exception("Unable to click element "+objName);
+        }
+}
 
 	//	private WebElement getVisibleEnabledElement(String fetype, String objName, String fValue) throws Exception {
 	//		WebElement element = null;
@@ -3366,6 +3386,28 @@ private void updateQueryDatabase(String fvalue) throws Exception
 		}
 
 	}
+	
+	public void funcVerifyGridColumnValues(String feType, String objName, String fvalue) throws InterruptedException {
+        Boolean found = false;
+        List<String> actualElementValues = new ArrayList<String>();
+        List<String> ExpValue = Arrays.asList(fvalue.split(","));
+        List<WebElement> ActValue = funcFindElements(feType, objName);
+        for (String value : ExpValue) {
+                found = false;
+                for (WebElement element : ActValue) {
+                        String actualElementValue = element.getText();
+                        if (actualElementValue.contains(value)) {
+                                found = true;
+                        }
+                        else {
+                                found = false;
+                                failFlag = 0;
+                                LOG_VAR = 0;
+                                break;
+                        }
+                }
+        }
+}
 
 	private void verifyTextMatches(String feType, String objName, String fValue) throws InterruptedException {
 		WebElement element;
@@ -3408,7 +3450,7 @@ private void updateQueryDatabase(String fvalue) throws Exception
                  {
                     System.out.println("value is present");
                     failFlag = 0;
-                           LOG_VAR = 0;
+                    LOG_VAR = 0;
                  }
                  else
                  {
