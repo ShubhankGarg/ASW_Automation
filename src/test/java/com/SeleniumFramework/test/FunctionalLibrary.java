@@ -276,7 +276,7 @@ public class FunctionalLibrary extends ReportLibrary {
 		StoreHIXTokenFromGurrilla, Secques, verifyTextContains,SelectByValue,createOptumIDandTDstore,HandleForgotPasswordSecques,VerifyMaskedPasswordField,VerifyTextNotPresent,
 
 		//XML Keywords
-		WriteXMLFromDB,VerifyFromXML,VerifyTextNotPresentInDD,captureScreenshots,SaveToNotepad ,updateQuery, VerifyDropDownOptionsCount, InputWindowPopup,ClickWindowPopup,ClickMouseHover,VerifyListValues,
+		WriteXMLFromDB,VerifyFromXML,VerifyTextPresentInDD,VerifyTextNotPresentInDD,captureScreenshots,SaveToNotepad ,updateQuery, VerifyDropDownOptionsCount, InputWindowPopup,ClickWindowPopup,ClickMouseHover,VerifyListValues,
 		
 		VerifyFileDownload, SelectByText, GetExcelColCount, GetExcelData;
 		
@@ -642,6 +642,10 @@ public class FunctionalLibrary extends ReportLibrary {
 			case VerifyTextNotPresentInDD:
 				funcVerifyTextNotPresentInDD(feType, objName, fValue);
 				break;
+				
+			case VerifyTextPresentInDD:
+				funcVerifyTextPresentInDD(feType, objName, fValue);
+				break;	
 				
 			case captureScreenshots:
 				funcaptureScreenshots();
@@ -3462,6 +3466,45 @@ private void updateQueryDatabase(String fvalue) throws Exception
              }
              
        }
+	
+	/**
+	* 
+	* @author 	Vivek Mamgain
+	* @description Verify dropdown is containing the value.  
+	* @create date  03/July/2018
+	* @modified by 
+	* @modify date
+	*/
+	private void funcVerifyTextPresentInDD(String feType, String objName, String fValue) throws InterruptedException 
+    {
+         WebElement element;
+          element = funcFindElement(feType, objName);
+          Select select = new Select(element);
+          String values[] = fValue.split(",");
+          
+          List<WebElement> ddElements = select.getOptions();
+         
+          failFlag = 0;
+          
+          for (String value : values) {
+             for (WebElement ddelement : ddElements)
+              {
+                  if(ddelement.getText().equalsIgnoreCase(value))
+                  {
+                     System.out.println("value is present");
+                     failFlag = 1;
+                     LOG_VAR = 1;
+                     break;
+                  }
+              }
+              if (failFlag == 0) {
+            	  System.out.println("value is not present");
+                  failFlag = 0;
+                  LOG_VAR = 0;
+                  break;  
+              }
+          }
+		}
 
 		private void funcaptureScreenshots() 
 		    {
@@ -3703,27 +3746,33 @@ private void updateQueryDatabase(String fvalue) throws Exception
 
 	}
 	
-	public void funcVerifyListValues(String feType, String objName, String fvalue) throws InterruptedException {		
+	public void funcVerifyListValues(String feType, String objName, String fvalue) throws InterruptedException {
+		Boolean found = false;
+		@SuppressWarnings("unused")
+		List<String> actualElementValues = new ArrayList<String>();
 		List<String> ExpValue = Arrays.asList(fvalue.split(","));
 		List<WebElement> ActValue = funcFindElements(feType, objName);
-		List<String> actualResult = new ArrayList<String>();
-		for (int j=0; j<ActValue.size(); j++){
-		    actualResult.add(ActValue.get(j).getAttribute("innerText"));
-		}
-		System.out.println(actualResult);
-		System.out.println(ExpValue);
-		for(int i=0;i<ExpValue.size();i++) {			
-		    if(actualResult.get(i).trim().equalsIgnoreCase(ExpValue.get(i).trim())) {
-		        System.out.println("Expected Value and Actual Values are matched ");
-		    }else {
-		    	failFlag = 0;
-				LOG_VAR = 0;
-		        System.out.println("Expected Value "+ ExpValue.get(i).trim() + "and Actual Values are mismatched"+actualResult.get(i));
-		        break;
-		    }
+		for (String value : ExpValue) {
+			found = false;
+			for (WebElement element : ActValue) {
+				if(element.getTagName().equals("input")) {
+				String actualElementValue = element.getAttribute("value");
+				if (actualElementValue.equalsIgnoreCase(value)) {
+					found = true;
+					break;
+				}
+				}else
+				{
+					String actualElementValue1 = element.getText();
+					if (actualElementValue1.equalsIgnoreCase(value)) {
+						found = true;
+						break;
+				}
+				
+				}
+			}
 		}
 	}
-	
 	public void funcVerifyMaskedpasswordField(String feType, String objName, String fvalue) throws InterruptedException {
 		WebElement elem=funcFindElement(feType, objName);
 		(new WebDriverWait(driver, 15))
