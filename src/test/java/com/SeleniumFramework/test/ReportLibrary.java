@@ -636,7 +636,17 @@ public class ReportLibrary extends ExcelFileUtil {
 		
 		if (strActionName.equalsIgnoreCase("HoldelementText")) {
 			VarSwtch = 29;
-		}
+		}	
+			
+		if (strActionName.equalsIgnoreCase("verifyTextContains")) {
+				VarSwtch = 12;
+		}                
+
+		if (strActionName.equalsIgnoreCase("VerifyListValues")) {
+				VarSwtch = 12;
+
+		}	
+		
 		
 
 		switch (VarSwtch) {
@@ -892,6 +902,14 @@ public class ReportLibrary extends ExcelFileUtil {
 		
 		if (strActionName.equalsIgnoreCase("HoldelementText")) {
 			VarSwtch = 29;
+		}
+		
+		if (strActionName.equalsIgnoreCase("verifyTextContains")) {
+			VarSwtch = 12;
+		}
+		if(strActionName.equalsIgnoreCase("VerifyListValues")) {
+
+			VarSwtch = 12;	
 		}
 
 		String tgName = "";
