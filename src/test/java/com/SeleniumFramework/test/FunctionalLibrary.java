@@ -10,7 +10,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.security.Key;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -33,6 +32,8 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -46,7 +47,9 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.util.StringUtil;
-import org.apache.xmlbeans.impl.store.Path;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Rule;
@@ -131,6 +134,8 @@ public class FunctionalLibrary extends ReportLibrary {
 	private String pageSource = ""; // Keep the page
 	private int localCounter = 0;
 	protected Cell currentDataCell;
+	public static Row row;
+	 public static FileOutputStream fos;
 
 	// DB Helpers
 	private Connection conn;
@@ -278,7 +283,7 @@ public class FunctionalLibrary extends ReportLibrary {
 		//XML Keywords
 		WriteXMLFromDB,VerifyFromXML,VerifyTextPresentInDD,VerifyTextNotPresentInDD,captureScreenshots,SaveToNotepad ,updateQuery, VerifyDropDownOptionsCount, InputWindowPopup,ClickWindowPopup,ClickMouseHover,VerifyListValues,
 		
-		VerifyFileDownload, SelectByText, GetExcelColCount, GetExcelData;
+		VerifyFileDownloaded, SelectByText, GetExcelColCount, SetExcelData;
 		
 
 	}
@@ -683,16 +688,14 @@ public class FunctionalLibrary extends ReportLibrary {
             	 funcVerifyGridColumnValues(feType, objName ,fValue);
             	 break;
             
-            case VerifyFileDownload:
-            	funcVerifyFileDownload(feType, objName, fValue);
+            case SetExcelData:
+            	setExcelData(fValue);
             	break;
-
             case GetExcelColCount:
             	funGetColCount(fValue);
             	break;
-
-            case GetExcelData:
-            	funGetExcelData(fValue);
+            case VerifyFileDownloaded:
+            	funcVerifyFileDownload(feType, objName, fValue);
             	break;
             
             case SelectByText:
@@ -2434,29 +2437,55 @@ private void updateQueryDatabase(String fvalue) throws Exception
 				+ " on Screen: " + screenName);
 	}
 	
-	private void funGetExcelData(String fvalue) throws InvalidFormatException, IOException {
-
-		/*FileInputStream fis = new FileInputStream(fvalue);
-		Workbook wb = WorkbookFactory.create(fis);
-		String sheetName = ((Path)fis).getFileName().toString();
-		Sheet sh = wb.getSheet(sheetName);
-		Row row = sh.getRow(0);
-		Cell c = row.getCell(0);
-		c.getCellTypeEnum();
-		String data = c.getStringCellValue();
-		data = data.toString();
-		return data;*/
+	public static void setExcelData(String fvalue) throws InvalidFormatException, Exception {
+		FunctionalLibrary.loadExcelSheet(fvalue);
+		int rowCount = sh.getLastRowNum() - sh.getFirstRowNum();
+		row = sh.getRow(1);
+		Row newRow = sh.createRow(rowCount + 1);
+		for (int j = 0; j < row.getLastCellNum(); j++) {
+			// Fill data in row
+			Cell cell = newRow.createCell(j);
+			cell.setCellValue("A12b34c56d78e910");
 		}
+		fos = new FileOutputStream(fvalue);
+		wb.write(fos);
+		fos.close();
+	}
+	
+	public static void loadExcelSheet(String fvalue)
+			throws  InvalidFormatException, IOException {
 
-	private void funGetColCount(String excelPath) throws InvalidFormatException, Exception {
-		excelpath = excelPath;
-		fis = new FileInputStream(excelpath);
+		fis = new FileInputStream(fvalue);
 		new WorkbookFactory();
 		wb = WorkbookFactory.create(fis);
-		sh = wb.getSheet("Item_UDA.xlsx");
-		int getCol = sh.getRow(0).getLastCellNum();
+		List<String> sheetNames = new ArrayList<String>();
+		for (int i = 0; i < wb.getNumberOfSheets(); i++) {
+			sheetNames.add(wb.getSheetName(i));
+			sh = wb.getSheetAt(i);
 		}
+	}
 
+	public void funGetColCount(String fvalue) throws Exception {
+
+		File myFile = new File(fvalue);
+		FileInputStream fis = new FileInputStream(myFile);
+		@SuppressWarnings("resource")
+		XSSFWorkbook myWorkBook = new XSSFWorkbook(fis);
+		XSSFSheet mySheet = myWorkBook.getSheet("Data");
+		XSSFRow row = null;
+
+		// Making the object of excel row
+		row = mySheet.getRow(0);
+
+		int colCount = row.getLastCellNum();
+		System.out.println("Column Count :- " + colCount);
+
+		int rowCount = mySheet.getLastRowNum();
+		System.out.println("Row Count :- " + rowCount);
+
+		dataholder.put("Value_1", String.valueOf(rowCount));
+		dataholder.put("Value_2", String.valueOf(colCount));
+	}
 
 	// Verify if a file is downloaded
 	public boolean funcVerifyFileDownload(String feType, String objName, String fvalue) throws Exception {
@@ -2467,21 +2496,21 @@ private void updateQueryDatabase(String fvalue) throws Exception
 		Thread.sleep(1000);
 		elem.click();
 		Thread.sleep(1000);
-		Path p = (Path) Paths.get(fvalue);
-		String fileName = ((java.nio.file.Path) p).getFileName().toString();
+		Path p = Paths.get(fvalue);
+		String fileName = p.getFileName().toString();
 		int index = fvalue.lastIndexOf("\\");
 		String filePath = fvalue.substring(0, index);
 		File dir = new File(filePath);
 		File[] dirContents = dir.listFiles();
+
 		for (int i = 0; i < dirContents.length; i++) {
-		if (dirContents[i].getName().equals(fileName)) {
-		// File has been found, it can now be deleted:
-		// dirContents[i].delete();
-		return true;
+			if (dirContents[i].getName().equals(fileName)) {
+				return true;
+			}
 		}
-		}
+
 		return false;
-		}
+	}
 
 
 	public void funcSelectByText(String feType, String objName, String fvalue) throws InterruptedException {
