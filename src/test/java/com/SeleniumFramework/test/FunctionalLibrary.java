@@ -45,6 +45,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.util.CellAddress;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.util.StringUtil;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -240,7 +241,7 @@ public class FunctionalLibrary extends ReportLibrary {
 		// by
 		// Shubhank
 		// DB functions
-		runQuery, putValueFromQuery, verifyDBtextMatches, verifyDBtextSmallerThan, verifyDBtextGreaterThan,
+		runQuery, putValueFromQuery, verifyDBtextMatches, verifyDBtextSmallerThan, verifyDBtextGreaterThan,FetchDBData,
 		// Text comparison
 		verifyTextMatches, checkElementCountEquals, verifyTextSmallerThan, verifyTextGreaterThan,
 		// Navigation
@@ -277,11 +278,11 @@ public class FunctionalLibrary extends ReportLibrary {
 
 		ValidateResponse, ValidateResponseExcel, AngJsClick, AngJsInput, AngJsVerifyElemExists, AngJsVerifyLink, AngJsVerifyTextPresent, AngJsSelectIndxValTxt, AngJSVerifyTextInput, MarklogicDBConnc, JsScroll,
 
-		// HIX Specific keywords
-		StoreHIXTokenFromGurrilla, Secques, verifyTextContains,SelectByValue,createOptumIDandTDstore,HandleForgotPasswordSecques,VerifyMaskedPasswordField,VerifyTextNotPresent,
+		// Specific keywords
+		Secques, verifyTextContains,SelectByValue,VerifyMaskedPasswordField,VerifyTextNotPresent,
 
 		//XML Keywords
-		WriteXMLFromDB,VerifyFromXML,VerifyTextPresentInDD,VerifyTextNotPresentInDD,captureScreenshots,SaveToNotepad ,updateQuery, VerifyDropDownOptionsCount, InputWindowPopup,ClickWindowPopup,ClickMouseHover,VerifyListValues,
+		VerifyTextPresentInDD,VerifyTextNotPresentInDD,captureScreenshots,SaveToNotepad ,updateQuery, VerifyDropDownOptionsCount, InputWindowPopup,ClickWindowPopup,ClickMouseHover,VerifyListValues,
 		
 		VerifyFileDownloaded, SelectByText, GetExcelColCount, SetExcelData;
 		
@@ -596,13 +597,9 @@ public class FunctionalLibrary extends ReportLibrary {
 			case runQuery:
 				runQueryDatabase(fValue);
 				break;
-
-			case VerifyFromXML:
-				funcVerifyFromXML(feType, objName, fValue);
-				break;
-
-			case WriteXMLFromDB:
-				funcWriteXMLFromDB(feType, objName, fValue);
+				
+			case FetchDBData:
+				funfetchDatabaseData(fValue);
 				break;
 
 			case putValueFromQuery:
@@ -631,13 +628,6 @@ public class FunctionalLibrary extends ReportLibrary {
 
 			case SelectByValue:
 				funcSelectByValue(feType, objName, fValue);
-				break;
-
-			case createOptumIDandTDstore:
-				funcCreateOptumIDandTDstore();
-				break;
-			case HandleForgotPasswordSecques:	
-				funcHandleForgotPasswordSecques();
 				break;
 			
 			case VerifyMaskedPasswordField:
@@ -942,16 +932,6 @@ private void updateQueryDatabase(String fvalue) throws Exception
 		driver.manage().window().maximize();
 		//		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		wait = new WebDriverWait(driver, 120);
-
-		// MODIFIED FOR MAHIX
-	/*	if (MAHIX_UserEmailId.isEmpty()) {
-			MAHIX_UserId = "erin" + Math.random();
-			MAHIX_UserPassword = "Test123#";
-			MAHIX_UserEmailId = MAHIX_UserId + "@sharklasers.com";
-		}
-*/
-		// END OF MODIFICATION FOR MAHIX
-
 		failFlag = 1;
 	}
 
@@ -3051,180 +3031,32 @@ private void updateQueryDatabase(String fvalue) throws Exception
 			 */
 		}
 	}
-
-	private void writeXMLDB(String Query,String ColName) throws Exception {
+	
+	private void funfetchDatabaseData(String fvalue) throws Exception {
 		{
 			try {
-
-				runQueryDatabase(Query);
-				File fileName = new File("./SeleniumFramework/XML/"+testName+".xml");
-				FileOutputStream is = new FileOutputStream(fileName);
-				OutputStreamWriter osw = new OutputStreamWriter(is);    
-				Writer w = new BufferedWriter(osw);
-				w.write(storeQueryResults.get(ColName.toUpperCase()));
-				w.close();
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				LOG_VAR=0;
+				runQueryDatabase(fvalue);
+				int row=currentDataCell.getRowIndex();
+				int col=currentDataCell.getColumnIndex();
+				//String currentExcelValue=getCellValue(readScriptSheet,tempStartRow, 1);
+				for(Map.Entry<String, String> entry : storeQueryResults.entrySet()) {
+					String key = entry.getKey();
+					String value = entry.getValue();
+					// currentDataCell.
+					setCellValue(readLoopSheet, row-1, col+1, key);
+					setCellValue(readLoopSheet, row, col+1, value);
+					col++;
+				}
 
 			}
-		}
-	}
-
-
-	private void funcVerifyFromXML(String feType, String objName, String fvalue) throws InterruptedException, Exception 
-    {
-          try
-          {
-
-                String parts[]=fvalue.split("#");
-                String parentTag=parts[0].trim();
-                String childTag=parts[1];
-                String value="";
-                String XMLValue="";
-                String XMLFlag="0";
-
-                if(fvalue.contains("!"))
-                {
-                      String parts1[]=childTag.split("!");
-                      childTag = parts1[0];
-                      value=parts1[1];
-                }
-                else if (fvalue.contains("&"))
-                {
-                      String parts1[]=childTag.split("&");
-                      childTag = parts1[0];
-                      value=parts1[1];
-                }
-                else
-                {
-                      value=parts[2];
-                }
-
-
-                DocumentBuilderFactory factory =DocumentBuilderFactory.newInstance();
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                Document doc = builder.parse(new File("./SeleniumFramework/XML/"+testName+".xml"));
-                //Document doc = builder.parse(new File("C:\\Users\\rgupta64\\Desktop\\InputEnrlXML.xml"));
-
-                NodeList itemList = doc.getElementsByTagName(parentTag);
-                Node itemNode;
-                Element itemElt;
-                if(itemList.getLength()>0)
-                {
-                      for(int k=0; k < itemList.getLength(); k++)
-                      {
-                            itemNode = itemList.item(k);
-
-                            if(itemNode.getNodeType() == Node.ELEMENT_NODE) 
-                            {
-                                  itemElt = (Element) itemNode;
-
-                                  if(fvalue.contains("!"))
-                                  {
-                                        XMLValue=itemElt.getAttribute(childTag);
-                                        System.out.println(childTag+" : "+XMLValue);
-                                        
-                                        if(value.equalsIgnoreCase(XMLValue))
-                                        {
-                                              System.out.println("value is matching");
-                                              XMLFlag="1";
-
-                                        }
-                                        else
-                                        {
-                                              continue;
-                                        }
-                                        
-                                  }
-                                  else if(fvalue.contains("&"))
-                                  {
-                                        String str=itemElt.getFirstChild().getNodeName();
-
-                                        if(itemElt.getFirstChild().getNodeName().equalsIgnoreCase(childTag))
-                                        {
-                                              XMLValue=itemElt.getFirstChild().getTextContent();
-                                              System.out.println(childTag+ " : "+ XMLValue);
-                                        }
-                                        else
-                                        {
-                                              continue;
-                                        }
-
-                                  }
-                                  else
-                                  {
-                                        XMLValue=itemElt.getElementsByTagName(childTag).item(0).getTextContent();
-                                        System.out.println(childTag+" : "+XMLValue);
-                                        
-                                        if(value.equalsIgnoreCase(XMLValue))
-                                        {
-                                              System.out.println("value is matching");
-                                              XMLFlag="1";
-
-                                        }
-                                        else
-                                        {
-                                              continue;
-                                        }
-
-                                  }
-
-                            }
-                      }
-                      if(fvalue.contains("&"))
-                      {
-                            if(value.equalsIgnoreCase(XMLValue))
-                            {
-                                  System.out.println("Value are matching");
-                                  failFlag=1;
-                            }
-                            else
-                            {
-                                  System.out.println("Values are not matching");
-                                  failFlag=0;
-                                  LOG_VAR=0;
-                                  throw new Exception("Values are not matching");
-                            }
-                      }
-
-                      else if((XMLFlag.equalsIgnoreCase("0")))
-                      {
-                            throw new Exception("Value is not present anywhere");
-                      }
-
-                }
-                else
-                {
-                      throw new Exception("Parent tag not present");
-                }
-          }
-          catch (ArrayIndexOutOfBoundsException e)
-          {
-                System.out.println("Value is not checked");
-          }
-
-          catch (Exception e)
-          {
-                e.printStackTrace();
-                LOG_VAR = 0;
-          }
-    }
-
-
-	private void funcWriteXMLFromDB(String feType, String objName, String fvalue) {
-
-		try {
-
-			String[] parts = fvalue.split("#");
-			String QueryName = parts[0]; 
-			String QColumnName = parts[1];
-			writeXMLDB(QueryName,QColumnName);
-
-		} 
-		catch (Exception e) {
-			System.out.println("funInputEmployeeIdHrhd--functionlib" + e.getMessage());
+			catch (Exception e) {
+				throw new Exception("Exception for SQL Statement: " + fvalue + "\n" + e.toString());
+			}
+			/*
+			 * try { conn.close(); }
+			 * 
+			 * catch (Exception e) { e.printStackTrace(); }
+			 */
 		}
 	}
 
@@ -3821,47 +3653,6 @@ private void updateQueryDatabase(String fvalue) throws Exception
 			}
 		 
 	}
-	
-	public void funcHandleForgotPasswordSecques() throws InterruptedException {
-		String answer1="",answer2="";
-		WebElement elem=funcFindElement("id", "labelQuestion1");
-		(new WebDriverWait(driver, 15))
-		.until((ExpectedConditions.elementToBeClickable(elem)));
-		 Thread.sleep(1000);
-		 String question1 = elem.getText();
-         if (question1.toLowerCase().contains("favorite color"))
-        	 answer1 = "green";
-         if (question1.toLowerCase().contains("best friend"))
-        	 answer1 = "optum";
-         if (question1.toLowerCase().contains("phone number"))
-        	 answer1 = "1234";
-         returnIfElementPresent(By.id("securityQuestion1_input")).sendKeys(answer1);
-         Thread.sleep(2000);
- 		WebElement elem1=funcFindElement("id", "labelSecurityQuestion2_input");
- 		(new WebDriverWait(driver, 15))
- 		.until((ExpectedConditions.elementToBeClickable(elem1)));
- 		 Thread.sleep(1000);
- 		 String question2 = elem1.getText();
-          if (question2.toLowerCase().contains("favorite color"))
-         	 answer2 = "green";
-          if (question2.toLowerCase().contains("best friend"))
-         	 answer2 = "optum";
-          if (question2.toLowerCase().contains("phone number"))
-         	 answer2 = "1234";
-          returnIfElementPresent(By.id("securityQuestion2_input")).sendKeys(answer2);
-	}
-
-	public void funcCreateOptumIDandTDstore() {
-		MAHIX_UserId = "erin" + Math.random();
-		MAHIX_UserId = MAHIX_UserId.replace(".", "");
-		// This will write to the particular cell of TestdataSheet TEST_Alpha in
-		// Testscript sheet
-		currentDataCell.setCellValue(MAHIX_UserId);
-		// This will make your value reflect in Report
-		fieldValue = MAHIX_UserId;
-		System.out.println("New fieldValue: " + MAHIX_UserId);
-	}
-	
 	
 	public void funcInputInWindowPopup(String feType, String objName, String fValue)  throws InterruptedException {
 		Pattern p=new Pattern(objName);

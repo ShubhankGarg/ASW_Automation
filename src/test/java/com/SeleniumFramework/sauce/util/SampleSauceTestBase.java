@@ -2,7 +2,6 @@ package com.SeleniumFramework.sauce.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -10,8 +9,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
@@ -29,7 +28,9 @@ import org.junit.runner.RunWith;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
+import com.SeleniumFramework.commons.util.ExcelFileUtil;
+import com.SeleniumFramework.commons.util.JiraConfigManager;
+import com.SeleniumFramework.commons.util.JiraRESTClient;
 
 
 import com.SeleniumFramework.commons.util.TestExecutor;
@@ -174,24 +175,40 @@ public class SampleSauceTestBase extends TestExecutor implements SauceOnDemandSe
 		worksheet = workbook.createSheet("TestResult");
     }
     
+    /*
+     *
+     * @modified by Vivek Mamgain
+     * @description Jira updation code.
+     * @create date
+     * @modified date 06-July-2018
+     */
+    
     @AfterClass
     public static void prepareResiduals() throws Exception {
+    	JiraConfigManager jiraConfigMgr = new JiraConfigManager(System.getProperty("user.dir")+"\\SeleniumFramework\\Test_Utility\\", "jira.properties");
+    	jiraConfigMgr.getJiraConfigrationDetails();
+    	
+    	//set path
+    	String folderName = "regression";
+    	if (!StringUtils.isBlank(JiraConfigManager.JiraId)) {
+    		folderName = JiraConfigManager.JiraId;
+    	}
     	System.err.println("Executing AfterClass");
     	Date now = new Date();
 		zipdate = DateFormat.getDateTimeInstance().format(now).toString();
 		zipdate = zipdate.replaceAll(":", "_");
-		File zipfolder = new File("SeleniumFramework"+File.separator+"TestExecutionZip_Reports");
+		File zipfolder = new File("SeleniumFramework"+File.separator+"Results"+File.separator+folderName+File.separator+"TestExecutionZip_Reports");
 		if (!zipfolder.exists()) {
 			zipfolder.mkdir();
 		}
 
-		reportzip = "SeleniumFramework"+File.separator+"TestExecutionZip_Reports"+File.separator+"" + result_backup_name + "_" + zipdate
+		reportzip = "SeleniumFramework"+File.separator+"Results"+File.separator+folderName+File.separator+"TestExecutionZip_Reports"+File.separator+"" + result_backup_name + "_" + zipdate
 				+ ".zip";
 		zipDir(reportzip, htmlRep, zipdate);
 
 		System.out.println("Total Testcases Executed: " + totalTCount);
 		System.out.println("Failed Test Cases: " + failedTCount);
-		File deldr = new File("SeleniumFramework"+File.separator+"Test_Reports"+File.separator+"Test_Reports_" + zipdate);
+		File deldr = new File("SeleniumFramework"+File.separator+"Results"+folderName+File.separator+File.separator+"Test_Reports"+File.separator+"Test_Reports_" + zipdate);
 		deleteDir(deldr);
 
 		workbook.write(fileOut);
@@ -214,6 +231,16 @@ public class SampleSauceTestBase extends TestExecutor implements SauceOnDemandSe
 	    String time =  hours + ":" + minutes + ":" + seconds;
 		
 		System.out.println(">>>>>>>>>>>>>>>   TOTAL TIME: "+time+" <<<<<<<<<<<<<<<<<<<<");
+		String[] failedTCs = ExcelFileUtil.getFailedTestCases();
+		//Write these test cases in comments of jira.properties file
+		JiraRESTClient cli  = new JiraRESTClient(System.getProperty("user.dir")+"\\SeleniumFramework\\Test_Utility\\", "jira.properties",  "CommentsData.json");
+		String rfailedTC = "";
+		for (String failedTC : failedTCs) {
+			if ( failedTC != null )
+				rfailedTC = rfailedTC +", "+failedTC;
+		}
+		cli.updateJiraItemComments(rfailedTC);
+		System.out.println("Jira updated");
     }
     
     /**

@@ -1,0 +1,40 @@
+{
+            "self": "https://vivekjira.atlassian.net/rest/api/2/issue/10047/comment/10042",
+            "id": "10042",
+            "author": {
+                "self": "https://vivekjira.atlassian.net/rest/api/2/user?username=admin",
+                "name": "admin",
+                "key": "admin",
+                "accountId": "5b0fa8d2dda5f94d06b978ce",
+                "emailAddress": "vivek.er6@gmail.com",
+                "avatarUrls": {
+                    "48x48": "https://avatar-cdn.atlassian.com/eac19865bb6ec66be0be6d5040fe6bbe?s=48&d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Feac19865bb6ec66be0be6d5040fe6bbe%3Fd%3Dmm%26s%3D48%26noRedirect%3Dtrue",
+                    "24x24": "https://avatar-cdn.atlassian.com/eac19865bb6ec66be0be6d5040fe6bbe?s=24&d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Feac19865bb6ec66be0be6d5040fe6bbe%3Fd%3Dmm%26s%3D24%26noRedirect%3Dtrue",
+                    "16x16": "https://avatar-cdn.atlassian.com/eac19865bb6ec66be0be6d5040fe6bbe?s=16&d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Feac19865bb6ec66be0be6d5040fe6bbe%3Fd%3Dmm%26s%3D16%26noRedirect%3Dtrue",
+                    "32x32": "https://avatar-cdn.atlassian.com/eac19865bb6ec66be0be6d5040fe6bbe?s=32&d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Feac19865bb6ec66be0be6d5040fe6bbe%3Fd%3Dmm%26s%3D32%26noRedirect%3Dtrue"
+                },
+                "displayName": "test user",
+                "active": true,
+                "timeZone": "Asia/Shanghai"
+            },
+            "body": "through postman is for the automation",
+            "updateAuthor": {
+                "self": "https://vivekjira.atlassian.net/rest/api/2/user?username=admin",
+                "name": "admin",
+                "key": "admin",
+                "accountId": "5b0fa8d2dda5f94d06b978ce",
+                "emailAddress": "vivek.er6@gmail.com",
+                "avatarUrls": {
+                    "48x48": "https://avatar-cdn.atlassian.com/eac19865bb6ec66be0be6d5040fe6bbe?s=48&d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Feac19865bb6ec66be0be6d5040fe6bbe%3Fd%3Dmm%26s%3D48%26noRedirect%3Dtrue",
+                    "24x24": "https://avatar-cdn.atlassian.com/eac19865bb6ec66be0be6d5040fe6bbe?s=24&d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Feac19865bb6ec66be0be6d5040fe6bbe%3Fd%3Dmm%26s%3D24%26noRedirect%3Dtrue",
+                    "16x16": "https://avatar-cdn.atlassian.com/eac19865bb6ec66be0be6d5040fe6bbe?s=16&d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Feac19865bb6ec66be0be6d5040fe6bbe%3Fd%3Dmm%26s%3D16%26noRedirect%3Dtrue",
+                    "32x32": "https://avatar-cdn.atlassian.com/eac19865bb6ec66be0be6d5040fe6bbe?s=32&d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Feac19865bb6ec66be0be6d5040fe6bbe%3Fd%3Dmm%26s%3D32%26noRedirect%3Dtrue"
+                },
+                "displayName": "vivek mamgain",
+                "active": true,
+                "timeZone": "Asia/Shanghai"
+            },
+            "created": "2018-06-12T12:26:28.144+0800",
+            "updated": "2018-06-12T12:26:28.144+0800",
+            "jsdPublic": true
+        }

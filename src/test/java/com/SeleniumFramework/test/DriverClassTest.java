@@ -95,19 +95,10 @@ public class DriverClassTest extends SampleSauceTestBase {
 //			driver = new ChromeDriver(service, options);
 
 //			selenium = new com.thoughtworks.selenium.webdriven.WebDriverBackedSelenium(driver, "http://www.google.com");
-			Thread.sleep(3000);
-//			System.out.println("Platform for URL: " + selenium.getEval("navigator.userAgent"));
-//			Thread.sleep(5000);
-//			System.out.println("TesInfo: Platform for URL: " + selenium.getEval("navigator.userAgent"));
-			String rv;// = selenium.getEval("navigator.userAgent");
+			Thread.sleep(2000);
+			String rv;
 			try {
-//				if (rvg.equalsIgnoreCase("")) {
-//					rvg = "FF" + rv.split("Firefox/")[1];
-//				} else {
-//					rvg = rvg + "_FF" + rv.split("Firefox/")[1];
-//				}
 				rv = capabilities.getCapability("browserName")+"_"+capabilities.getCapability("version");
-						//"FF_" + rv.split("Firefox/")[1];
 
 			} catch (Exception e) {
 				rv = "Chrome";

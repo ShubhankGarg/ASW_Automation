@@ -6,14 +6,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.Format;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -71,16 +78,35 @@ public class ExcelFileUtil extends ThreadAssist{
 	public String tmpBrowserVer="";
 	public static String db_username, db_password, db_driver, db_url;  //Database attributes
 	private static ExcelFileUtil excelFileUtil = null;
-	
+	static String folderName;
 
 //	public ExcelFileUtil() {
 //		loadSeleniumUtilityFile();
 //	}
-
+	
+	/**
+	* 
+	* @modified by Vivek Mamgain
+	* @description Copy source results to other another directory with time stamp.
+	* @create date 
+	* @modified date 06-July-2018
+	* 
+	*/
 	protected static void loadSeleniumUtilityFile() {
 		String utilityFilePath = "SeleniumFramework"+File.separator+"Test_Utility"+File.separator+"Selenium_Utility.xls";
 		String ApputilityFilePath =
 				"SeleniumFramework"+File.separator+"Test_Utility"+File.separator+"Application_Config.xls";
+		JiraConfigManager jcm = new JiraConfigManager(System.getProperty("user.dir")+File.separator+"SeleniumFramework"+File.separator+"Test_Utility"+File.separator, "jira.properties");
+		folderName = "Regression";
+		try {
+			jcm.getJiraConfigrationDetails();
+			if (!StringUtils.isBlank(JiraConfigManager.JiraId))
+				folderName = JiraConfigManager.JiraId;
+				
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try
 		{
 			
@@ -109,7 +135,8 @@ public class ExcelFileUtil extends ThreadAssist{
 		elementCollection = new File(getCellValue(readsheet,3,1).replace("\\", File.separator)).getCanonicalPath();
 		System.out.println(elementCollection);
 		environment = getCellValue(readsheet,4,1);
-		htmlRep= new File(getCellValue(readsheet, 5,1).replace("\\", File.separator)).getCanonicalPath();	     
+		htmlRep= new File(getCellValue(readsheet, 5,1).replace("\\", File.separator)).getCanonicalPath();	    
+		htmlRep = htmlRep+File.separator+folderName;
 	    System.out.println(htmlRep);
 	    screenShots = new File(getCellValue(readsheet,6,1).replace("\\", File.separator)).getCanonicalPath();
 	    updateQC = getCellValue(readsheet,7,1);
@@ -218,18 +245,43 @@ try{
     	
 	}
 
+	public static void setCellValue(HSSFSheet sheet, int rowPosition, int columnPosition, String Value) throws IOException 
+	{
+		Row row,Formattedrow;
+		Cell cell = null,Formattedcell=null;
+		try{
+			Formattedrow=sheet.getRow(rowPosition);
+			Formattedcell = Formattedrow.getCell(columnPosition-1);
+			row = sheet.getRow(rowPosition);
+			cell = row.getCell(columnPosition);
+			CellStyle cellStyle = Formattedcell.getCellStyle();
+			if (cell==null)
+			{
+				cell = row.createCell(columnPosition);
+				cell.setCellValue(Value);
+				cell.setCellStyle(cellStyle);
+			} else { 
+				cell.setCellValue(Value); 
+				}
+		}catch(Exception e){
+			System.out.println("Exception Here===================== >  Thread: "+Thread.currentThread().getName()+"\n"+
+					"===================== >  Sheet: "+sheet.getSheetName()+"\n"+
+					"===================== >  Exception: "+sheet.getSheetName());
+		}
+	}
+
 	public static void zipDir(String zipFileName, String dir, String zipDate) throws Exception
 	{
 		boolean copyflag = true;
 
 		System.out.println("Source Result Path: " + dir);		
 		File sourceLocation = new File(dir); 
-		File targetLocation = new File("SeleniumFramework"+File.separator+"Test_Reports_"+ zipDate);
+		File targetLocation = new File("SeleniumFramework"+File.separator+"Results"+File.separator+folderName+File.separator+"Test_Reports_"+ zipDate);
 		copyflag = copyDirectory(sourceLocation,targetLocation);
 		Thread.sleep(2000);
 		if(copyflag) 
 		{
-			dir = "SeleniumFramework"+File.separator+"Test_Reports_" + zipDate;
+			dir = "SeleniumFramework"+File.separator+"Results"+File.separator+folderName+File.separator+"Test_Reports_" + zipDate;
 		}
 		File f = new File(zipFileName);
 		boolean exists = f.exists();
@@ -264,41 +316,71 @@ try{
 			in.close();
 		}
 	}
+    
+    /**
+    * 
+    * @author Vivek Mamgain
+    * @description Copy source results to other another directory with time stamp.
+    * @create date 
+    * @modified by 06-July-2018
+    * @modify date
+    */
+        public static  boolean copyDirectory(File sourceLocation , File targetLocation) throws IOException {
+        boolean dirFlag;
+    dirFlag = true;
+    try {
+    if (sourceLocation.isDirectory()) {
+    if (!targetLocation.exists()) {
+    targetLocation.mkdir();
+    }
+    /**
+    String[] children = sourceLocation.list();
+    for (int i=0; i<children.length; i++) {
+    copyDirectory(new File(sourceLocation, children[i]),
+        new File(targetLocation, children[i]));
+    }
+            } else {
 
-    public static  boolean copyDirectory(File sourceLocation , File targetLocation) throws IOException {
-    	boolean dirFlag;
-		dirFlag = true;
-		try {
-			if (sourceLocation.isDirectory()) {
-				if (!targetLocation.exists()) {
-					targetLocation.mkdir();
-			}
+            InputStream in = new FileInputStream(sourceLocation);
+    OutputStream out = new FileOutputStream(targetLocation);
+                // Copy the bits from instream to outstream
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+    }
+    in.close();
+    out.close();
+    */
+    String folderName = sourceLocation.getAbsolutePath();
+    File[] listDir = new File(folderName).listFiles();
 
-				String[] children = sourceLocation.list();
-				for (int i=0; i<children.length; i++) {
-					copyDirectory(new File(sourceLocation, children[i]),
-				    new File(targetLocation, children[i]));
-				}
-	        } else {
-
-	        InputStream in = new FileInputStream(sourceLocation);
-			OutputStream out = new FileOutputStream(targetLocation);
-            // Copy the bits from instream to outstream
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-            	out.write(buf, 0, len);
-			}
-			in.close();
-			out.close();
-		}
-		} catch(NullPointerException e) {
-			dirFlag = false;
-		}
-		return dirFlag;
+    for (int i = 0; i < listDir.length; i++) {
+     
+        if (listDir[i].isDirectory()) {
+            String fileName = listDir[i].getName();
+            if (fileName.contains("_"+platform.toLowerCase()+"_")) {
+                System.out.println("found file" + " " + fileName);
+                sourceLocation = new File(sourceLocation + File.separator +fileName);
+                FileUtils.copyDirectory(sourceLocation, targetLocation);
+            }
+        }
+    }
+     
+    //sourceLocation = new File(sourceLocation + m.group());
+     
+    }
+    } catch(NullPointerException e) {
+    dirFlag = false;
+    }
+    return dirFlag;
+    }
+	private static String Lowercase(String platform2) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-    public  void writeStepExcel(String previoustc, int testFlag, String failedStep, String updateFlag, String qcExcelPath, int testcaseCounter) throws InvalidFormatException, IOException {
+	public  void writeStepExcel(String previoustc, int testFlag, String failedStep, String updateFlag, String qcExcelPath, int testcaseCounter) throws InvalidFormatException, IOException {
     	InputStream inp = new FileInputStream(qcExcelPath);
 		Workbook wb = WorkbookFactory.create(inp);
 		Sheet sheet = wb.getSheetAt(0);			    
@@ -312,20 +394,20 @@ try{
 		}
 		row = sheet.getRow(testcaseCounter);	    
 		cell = row.getCell(0);
-		cell.setCellType(Cell.CELL_TYPE_STRING);
+		cell.setCellType(CellType.STRING);
 		cell.setCellValue(previoustc);		    
 		cell = row.getCell(1);
-		cell.setCellType(Cell.CELL_TYPE_STRING);
+		cell.setCellType(CellType.STRING);
 		cell.setCellValue(status);		    
 		cell = row.getCell(2);
 		if(!failedStep.equalsIgnoreCase(" ")) {
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellType(CellType.NUMERIC);
 			int tempft = Integer.parseInt(failedStep);
 			cell.setCellValue(tempft);
 		}
 
        cell = row.getCell(3);
-	   cell.setCellType(Cell.CELL_TYPE_STRING);
+	   cell.setCellType(CellType.STRING);
 	   cell.setCellValue(updateFlag);		    
 	   // Write the output to a file
 	   FileOutputStream fileOut = new FileOutputStream(qcExcelPath);
@@ -338,8 +420,9 @@ try{
 		System.out.println(folderPath);
 		File f = new File(folderPath);
 		boolean exists = f.exists();
-		  if (exists) {
+		  if (!exists) {
 			  deleteDir(f);
+			  f = new File(folderPath);
 			  f.mkdir();
 		  }else{
 		 f.mkdir();
@@ -413,5 +496,52 @@ try{
 	  
 	   return returnObject;
 	}
+	/**
+	* 
+	* @author Vivek Mamgain
+	* @description Get failed test cases.
+	* @create date 06-July-2018
+	* @modified by 
+	* @modified date 
+	*/
+	public static String[] getFailedTestCases() throws IOException
+	{
+		FileInputStream afis = new FileInputStream(System.getProperty("user.dir")+"\\SeleniumFramework\\Test_Excel\\Tester.xls");
 
+		POIFSFileSystem apoifs = new POIFSFileSystem(afis);
+		HSSFWorkbook aworkbook = new HSSFWorkbook(apoifs);
+
+		Sheet sheet = aworkbook.getSheet("TestResult");
+
+		// Get row headers
+		Row rowheaders = sheet.getRow(0);
+		Cell cell;
+		int testStatusColumnNo = -1, testCaseNameColumnNo = -1;
+
+		for (int i = 0; i < rowheaders.getLastCellNum(); i++) {
+			cell = rowheaders.getCell(i);
+			if (cell.getStringCellValue().equals("TESTSTATUS")) {
+				testStatusColumnNo = i;
+			}
+			if (cell.getStringCellValue().equals("TESTCASENAME")) {
+				testCaseNameColumnNo = i;
+			}
+		}
+
+		// Get data from columns
+		int totalRows = sheet.getLastRowNum();
+		String[] failedTestCases = new String[totalRows];
+		int index = 0;
+		for (int i = 1; i <= totalRows; i++) {
+			Row dataRow = sheet.getRow(i);
+			Cell testStatusData = dataRow.getCell(testStatusColumnNo);
+			Cell testCaseNameData = dataRow.getCell(testCaseNameColumnNo);
+
+			if (testStatusData.getStringCellValue().equalsIgnoreCase("FAILED")) {
+				failedTestCases[index] = testCaseNameData.getStringCellValue();
+				index++;
+			}
+		}
+		return failedTestCases;
+	}
 }
