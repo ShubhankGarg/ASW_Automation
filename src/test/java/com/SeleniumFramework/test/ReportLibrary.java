@@ -637,13 +637,17 @@ public class ReportLibrary extends ExcelFileUtil {
 		if (strActionName.equalsIgnoreCase("HoldelementText")) {
 			VarSwtch = 29;
 		}	
-			
+
 		if (strActionName.equalsIgnoreCase("verifyTextContains")) {
-				VarSwtch = 12;
+			VarSwtch = 12;
 		}                
 
 		if (strActionName.equalsIgnoreCase("VerifyListValues")) {
-				VarSwtch = 12;
+			VarSwtch = 12;
+
+		}	
+		if (strActionName.equalsIgnoreCase("verifyFromDatabase")) {
+			VarSwtch = 30;
 
 		}	
 		
@@ -739,6 +743,10 @@ public class ReportLibrary extends ExcelFileUtil {
 		
 		case 29:
 			strExpected = "HoldValue for" + strFieldname + " should be " + strValue;
+			break;
+		
+		case 30:
+			strExpected = "Database expected value should be " + strValue;
 			break;
 			
 
@@ -911,6 +919,9 @@ public class ReportLibrary extends ExcelFileUtil {
 
 			VarSwtch = 12;	
 		}
+		if (strActionName.equalsIgnoreCase("verifyFromDatabase")) {
+			VarSwtch = 30;
+		}
 
 		String tgName = "";
 		String val = "";
@@ -1024,7 +1035,9 @@ public class ReportLibrary extends ExcelFileUtil {
 			case 29:
 				strActual = "Value for field " + strFieldname + " is " + strValue;
 				break;
-							
+			case 30:	
+				strActual = "Values are matched with database field " + strValue;
+				break;			
 				
 
 			}
@@ -1124,6 +1137,9 @@ public class ReportLibrary extends ExcelFileUtil {
 			case 29:
 				strActual = "Failed to hold value for" + strFieldname ;
 				break;	
+			case 30:	
+				strActual = "Values are not matched with database field " + strValue;
+				break;		
 			}
 		}
 

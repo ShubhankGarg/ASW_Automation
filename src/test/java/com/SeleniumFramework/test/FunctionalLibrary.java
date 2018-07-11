@@ -241,7 +241,7 @@ public class FunctionalLibrary extends ReportLibrary {
 		// by
 		// Shubhank
 		// DB functions
-		runQuery, putValueFromQuery, verifyDBtextMatches, verifyDBtextSmallerThan, verifyDBtextGreaterThan,FetchDBData,
+		runQuery, putValueFromQuery, verifyDBtextMatches, verifyDBtextSmallerThan, verifyDBtextGreaterThan,FetchDBData,verifyFromDatabase,
 		// Text comparison
 		verifyTextMatches, checkElementCountEquals, verifyTextSmallerThan, verifyTextGreaterThan,
 		// Navigation
@@ -601,7 +601,11 @@ public class FunctionalLibrary extends ReportLibrary {
 			case FetchDBData:
 				funfetchDatabaseData(fValue);
 				break;
-
+				
+			case verifyFromDatabase:
+				funVerifyValfromDatabase(fValue);
+				break;
+				
 			case putValueFromQuery:
 				funInputFromQuery(feType, objName, fValue);
 				break;
@@ -3031,7 +3035,35 @@ private void updateQueryDatabase(String fvalue) throws Exception
 			 */
 		}
 	}
-	
+	private void funVerifyValfromDatabase(String fvalue) throws InterruptedException, Exception 
+    {
+          try
+          {
+
+                String parts[]=fvalue.split("#");
+                String DBColname=parts[0].trim();
+                String ExpectedVal=parts[1].trim();
+                String ActualDBColValue=storeQueryResults.get(DBColname);
+                if(ExpectedVal.equals(ActualDBColValue))
+        		{
+        			System.out.println("Database value="+ ActualDBColValue + "and expected value="+ExpectedVal+" are matching");
+        			failFlag = 1;
+        			LOG_VAR = 1;
+
+        		}
+        		else
+        		{
+        			System.out.println("Database value="+ ActualDBColValue + "and expected value="+ExpectedVal+" are  not matching");	
+        			failFlag = 0;
+        			LOG_VAR = 0;
+        		}
+          }
+          catch (Exception e)
+          {
+                e.printStackTrace();
+                LOG_VAR = 0;
+          }
+    }
 	private void funfetchDatabaseData(String fvalue) throws Exception {
 		{
 			try {
@@ -3292,8 +3324,8 @@ private void updateQueryDatabase(String fvalue) throws Exception
 			LOG_VAR = 1;
 		} else {
 			failFlag = 0;
-			LOG_VAR = 0;
 			System.out.println("TestError :Expected Element text doesn't matches with UI");
+			throw new NoSuchElementException("Expected Element text doesn't matches with UI");
 
 		}
 	}
