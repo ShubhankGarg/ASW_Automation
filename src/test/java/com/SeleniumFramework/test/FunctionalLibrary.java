@@ -2425,7 +2425,7 @@ private void updateQueryDatabase(String fvalue) throws Exception
 		FunctionalLibrary.loadExcelSheet(fvalue);
 		int rowCount = sh.getLastRowNum() - sh.getFirstRowNum();
 		row = sh.getRow(1);
-		Row newRow = sh.createRow(rowCount + 1);
+		Row newRow = sh.createRow(rowCount+1);
 		for (int j = 0; j < row.getLastCellNum(); j++) {
 			// Fill data in row
 			Cell cell = newRow.createCell(j);
@@ -3007,34 +3007,42 @@ private void updateQueryDatabase(String fvalue) throws Exception
 	}
 
 	private void runQueryDatabase(String fvalue) throws Exception {
-		{
-			try {
+		try {
 
-				Class.forName(db_driver);
-				conn = DriverManager.getConnection(db_url, db_username, db_password);
-				PreparedStatement statement = conn.prepareStatement(fvalue);
-				statement.setMaxRows(1);
-				ResultSet rs = statement.executeQuery(fvalue);
-				ResultSetMetaData rsMetaData = rs.getMetaData();
-				System.out.println("result set columns" + rsMetaData.getColumnCount());
-				int numberOfColumns = rsMetaData.getColumnCount();
+			Class.forName(db_driver);
+			conn = DriverManager.getConnection(db_url, db_username, db_password);
+			PreparedStatement statement = conn.prepareStatement(fvalue);
+			statement.setMaxRows(1);
+			ResultSet rs = statement.executeQuery();
+			ResultSetMetaData rsMetaData = rs.getMetaData();
+			System.out.println("result set columns" + rsMetaData.getColumnCount());
+			int numberOfColumns = rsMetaData.getColumnCount();
 				while (rs.next()) {
 					for (int i = 1; i <= numberOfColumns; i++) {
 						storeQueryResults.put(rsMetaData.getColumnName(i), rs.getString(rsMetaData.getColumnName(i)));
 					}
 					System.out.println("storeQueryResults" + storeQueryResults);
-
 				}
-			} catch (Exception e) {
-				throw new Exception("Exception for SQL Statement: " + fvalue + "\n" + e.toString());
+				rs = statement.executeQuery();
+				if (rs.getRow()==0) {	
+				for (int i = 1; i <= numberOfColumns; i++) {
+					storeQueryResults.put(rsMetaData.getColumnName(i),"NULL");
+				}
 			}
-			/*
-			 * try { conn.close(); }
-			 * 
-			 * catch (Exception e) { e.printStackTrace(); }
-			 */
+		} catch (Exception e) {
+			throw new Exception("Exception for SQL Statement: " + fvalue + "\n" + e.toString());
 		}
 	}
+
+	private void runNullQueryDatabase(String fvalue) throws Exception {
+			try {
+				runQueryDatabase(fvalue);
+			}
+			catch (Exception e)   {
+				e.printStackTrace();
+				LOG_VAR = 0;
+			}
+		}
 	private void funVerifyValfromDatabase(String fvalue) throws InterruptedException, Exception 
     {
           try
