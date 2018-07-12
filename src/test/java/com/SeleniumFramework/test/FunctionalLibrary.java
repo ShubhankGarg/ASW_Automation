@@ -2780,7 +2780,7 @@ private void updateQueryDatabase(String fvalue) throws Exception
 	}
 
 	public static void JasperReportExecut() throws JRException, IOException, InterruptedException {
-		/*String reportFile = "SeleniumFramework" + File.separator + "Jasper_Data" + File.separator + "Jasper.jrxml";
+		String reportFile = "SeleniumFramework" + File.separator + "Jasper_Data" + File.separator + "Jasper.jrxml";
 		JRXlsDataSource ds1 = getDataSource1();
 		JasperPrint jasperPrint;
 		JasperDesign jasperDesign = JRXmlLoader.load(reportFile);
@@ -2788,7 +2788,7 @@ private void updateQueryDatabase(String fvalue) throws Exception
 		jasperPrint = JasperFillManager.fillReport(jasperReport, null, ds1);
 		createFolder("SeleniumFramework" + File.separator + "Test_Jasper_Report");
 		exportReportToXHtmlFile(jasperPrint,
-				"SeleniumFramework" + File.separator + "Test_Jasper_Report" + File.separator + "Report.html");*/
+				"SeleniumFramework" + File.separator + "Test_Jasper_Report" + File.separator + "Report.html");
 	}
 
 	public JacksonHandle readFulfillmentRecordById(String id) {
@@ -3008,7 +3008,7 @@ private void updateQueryDatabase(String fvalue) throws Exception
 
 	private void runQueryDatabase(String fvalue) throws Exception {
 		try {
-
+			boolean Qflag=false;
 			Class.forName(db_driver);
 			conn = DriverManager.getConnection(db_url, db_username, db_password);
 			PreparedStatement statement = conn.prepareStatement(fvalue);
@@ -3021,10 +3021,10 @@ private void updateQueryDatabase(String fvalue) throws Exception
 					for (int i = 1; i <= numberOfColumns; i++) {
 						storeQueryResults.put(rsMetaData.getColumnName(i), rs.getString(rsMetaData.getColumnName(i)));
 					}
+					Qflag=true;
 					System.out.println("storeQueryResults" + storeQueryResults);
 				}
-				rs = statement.executeQuery();
-				if (rs.getRow()==0) {	
+				if (Qflag==false) {	
 				for (int i = 1; i <= numberOfColumns; i++) {
 					storeQueryResults.put(rsMetaData.getColumnName(i),"NULL");
 				}

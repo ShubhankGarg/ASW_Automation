@@ -18,17 +18,23 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFCreationHelper;
 import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFHyperlink;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -74,8 +80,10 @@ public class ReportLibrary extends ExcelFileUtil {
 	public static HSSFWorkbook workbook;
 	public static HSSFSheet worksheet;
 	public String url;
+	public static HSSFCreationHelper helper;
+	public static HSSFHyperlink file_link;
 	public static String reportzip;
-
+	public static String Currentreport;
 	public static void createLog() {
 		try {
 			FileWriter fstream = new FileWriter("out.txt", true);
@@ -116,6 +124,7 @@ public class ReportLibrary extends ExcelFileUtil {
 		exceptionLog = "ExcepLog_" + reportDate;
 		reportDate = modulePath + File.separator + reportDate + ".html";
 		reportLog = modulePath + File.separator + reportLog + ".html";
+		Currentreport=reportLog;
 		exceptionLog = modulePath + File.separator + exceptionLog + ".txt";
 
 		File f_result = new File(reportDate);
@@ -1288,36 +1297,45 @@ public class ReportLibrary extends ExcelFileUtil {
 			HSSFRow row1 = worksheet.createRow(0);
 			HSSFCell cellA1 = row1.createCell(0);
 			cellA1.setCellValue("TCID");
+			worksheet.autoSizeColumn(0);
 
 			HSSFCell cellA2 = row1.createCell(1);
 			cellA2.setCellValue("TESTCASENAME");
-
+			worksheet.autoSizeColumn(1);
+			
 			HSSFCell cellA3 = row1.createCell(2);
 			cellA3.setCellValue("RESULT");
-
+			worksheet.autoSizeColumn(2);
+			
 			HSSFCell cellA4 = row1.createCell(3);
 			cellA4.setCellValue("BROWSER");
-
+			worksheet.autoSizeColumn(3);
+			
 			HSSFCell cellA5 = row1.createCell(4);
 			cellA5.setCellValue("TESTSTATUS");
-
+			worksheet.autoSizeColumn(4);
+			
 			HSSFCell cellA6 = row1.createCell(5);
 			cellA6.setCellValue("TESTCOUNT");
-
+			worksheet.autoSizeColumn(5);
+			
 			HSSFCell cellA7 = row1.createCell(6);
 			cellA7.setCellValue("TPASS");
-
+			worksheet.autoSizeColumn(6);
+			
 			HSSFCell cellA8 = row1.createCell(7);
 			cellA8.setCellValue("TFAIL");
-
+			worksheet.autoSizeColumn(7);
+			
 			HSSFCell cellA9 = row1.createCell(8);
 			cellA9.setCellValue("TESTURL");
-
-			HSSFCell cellA10 = row1.createCell(9);
+			worksheet.autoSizeColumn(8);
+			
+			/*HSSFCell cellA10 = row1.createCell(9);
 			cellA10.setCellValue("ALM_TC_PATH");
 
 			HSSFCell cellA11 = row1.createCell(10);
-			cellA11.setCellValue("ALM_SUITE_PATH");
+			cellA11.setCellValue("ALM_SUITE_PATH");*/
 
 		}
 
@@ -1337,17 +1355,29 @@ public class ReportLibrary extends ExcelFileUtil {
 		HSSFCell cellA1 = row.createCell(0);
 		cellA1.setCellValue(TCID);
 		HSSFCellStyle cellStyle = workbook.createCellStyle();
-		cellStyle.setFillForegroundColor(HSSFColor.GOLD.index);
-		//cellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		HSSFCellStyle cellStyles = workbook.createCellStyle();
+		
+		cellStyle.setFillForegroundColor(HSSFColorPredefined.GOLD.getIndex());
+		cellStyle.setAlignment(HorizontalAlignment.CENTER);
 		cellA1.setCellStyle(cellStyle);
-
 		HSSFCell cellA2 = row.createCell(1);
 		cellA2.setCellValue(strTestcasename);
 		cellA2.setCellStyle(cellStyle);
 
-		HSSFCell cellA3 = row.createCell(2);
+		/*HSSFCell cellA3 = row.createCell(2);
 		cellA3.setCellValue(Tstatus);
-		cellA3.setCellStyle(cellStyle);
+		cellA3.setCellStyle(cellStyle);*/
+		helper = workbook.getCreationHelper();
+		file_link = helper.createHyperlink(HyperlinkType.FILE);
+		file_link.setAddress(Currentreport);
+		HSSFCell cellA3 = row.createCell(2);
+		HSSFFont hSSFFont = workbook.createFont();
+		hSSFFont.setFontName(HSSFFont.FONT_ARIAL);
+		hSSFFont.setColor(HSSFColorPredefined.BLUE.getIndex());
+		cellStyles.setFont(hSSFFont);
+		cellA3.setCellValue(Tstatus);
+		cellA3.setCellStyle(cellStyles);
+		cellA3.setHyperlink(file_link);
 
 		HSSFCell cellA4 = row.createCell(3);
 		cellA4.setCellValue(BrowserName);

@@ -77,7 +77,12 @@ public class TestExecutor extends FunctionalLibrary {
 
 						moduleResultFolder = moduleName + "_" + uc;
 						moduleResultFolder = moduleResultFolder.replaceAll(" ", "");
-						String modulepath = htmlRep + File.separator + moduleResultFolder;
+						String modulepath = htmlRep + File.separator + folderName ;
+						if (!isFolderCreated(modulepath)) {
+							setFolderCreated(modulepath);
+							createFolder(modulepath);
+						}
+						modulepath=modulepath+ File.separator+ moduleResultFolder;
 						scrshtPath = modulepath + File.separator + "ScreenShots";
 						// Create folders only if they don't exist (Thread Safe)
 						if (!isFolderCreated(moduleName)) {

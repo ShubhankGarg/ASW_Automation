@@ -197,18 +197,21 @@ public class SampleSauceTestBase extends TestExecutor implements SauceOnDemandSe
     	Date now = new Date();
 		zipdate = DateFormat.getDateTimeInstance().format(now).toString();
 		zipdate = zipdate.replaceAll(":", "_");
-		File zipfolder = new File("SeleniumFramework"+File.separator+"Results"+File.separator+folderName+File.separator+"TestExecutionZip_Reports");
+		//File zipfolder = new File("SeleniumFramework"+File.separator+"Results"+File.separator+folderName+File.separator+"TestExecutionZip_Reports");
+		File zipfolder = new File("SeleniumFramework"+File.separator+"TestExecutionZip_Reports");
 		if (!zipfolder.exists()) {
 			zipfolder.mkdir();
 		}
 
-		reportzip = "SeleniumFramework"+File.separator+"Results"+File.separator+folderName+File.separator+"TestExecutionZip_Reports"+File.separator+"" + result_backup_name + "_" + zipdate
-				+ ".zip";
+		//reportzip = "SeleniumFramework"+File.separator+"Results"+File.separator+folderName+File.separator+"TestExecutionZip_Reports"+File.separator+"" + result_backup_name + "_" + zipdate
+		//		+ ".zip";
+		reportzip = "SeleniumFramework"+File.separator+"TestExecutionZip_Reports"+File.separator+"" + result_backup_name + "_" + zipdate+ ".zip";
 		zipDir(reportzip, htmlRep, zipdate);
 
 		System.out.println("Total Testcases Executed: " + totalTCount);
 		System.out.println("Failed Test Cases: " + failedTCount);
-		File deldr = new File("SeleniumFramework"+File.separator+"Results"+folderName+File.separator+File.separator+"Test_Reports"+File.separator+"Test_Reports_" + zipdate);
+		//File deldr = new File("SeleniumFramework"+File.separator+"Results"+folderName+File.separator+File.separator+"Test_Reports"+File.separator+"Test_Reports_" + zipdate);
+		 File deldr = new File("SeleniumFramework"+File.separator+"Test_Reports"+File.separator+"Test_Reports_" + zipdate);
 		deleteDir(deldr);
 
 		workbook.write(fileOut);
@@ -233,7 +236,7 @@ public class SampleSauceTestBase extends TestExecutor implements SauceOnDemandSe
 		System.out.println(">>>>>>>>>>>>>>>   TOTAL TIME: "+time+" <<<<<<<<<<<<<<<<<<<<");
 		String[] failedTCs = ExcelFileUtil.getFailedTestCases();
 		//Write these test cases in comments of jira.properties file
-		JiraRESTClient cli  = new JiraRESTClient(System.getProperty("user.dir")+"\\SeleniumFramework\\Test_Utility\\", "jira.properties",  "CommentsData.json");
+		JiraRESTClient cli  = new JiraRESTClient(System.getProperty("user.dir")+File.separator+"SeleniumFramework"+File.separator +"Test_Utility"+File.separator, "jira.properties",  "CommentsData.json");
 		String rfailedTC = "";
 		for (String failedTC : failedTCs) {
 			if ( failedTC != null )

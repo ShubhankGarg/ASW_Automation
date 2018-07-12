@@ -78,7 +78,7 @@ public class ExcelFileUtil extends ThreadAssist{
 	public String tmpBrowserVer="";
 	public static String db_username, db_password, db_driver, db_url;  //Database attributes
 	private static ExcelFileUtil excelFileUtil = null;
-	static String folderName;
+	public static String folderName;
 
 //	public ExcelFileUtil() {
 //		loadSeleniumUtilityFile();
@@ -136,7 +136,7 @@ public class ExcelFileUtil extends ThreadAssist{
 		System.out.println(elementCollection);
 		environment = getCellValue(readsheet,4,1);
 		htmlRep= new File(getCellValue(readsheet, 5,1).replace("\\", File.separator)).getCanonicalPath();	    
-		htmlRep = htmlRep+File.separator+folderName;
+		//htmlRep = htmlRep+File.separator+folderName;
 	    System.out.println(htmlRep);
 	    screenShots = new File(getCellValue(readsheet,6,1).replace("\\", File.separator)).getCanonicalPath();
 	    updateQC = getCellValue(readsheet,7,1);
@@ -276,12 +276,14 @@ try{
 
 		System.out.println("Source Result Path: " + dir);		
 		File sourceLocation = new File(dir); 
-		File targetLocation = new File("SeleniumFramework"+File.separator+"Results"+File.separator+folderName+File.separator+"Test_Reports_"+ zipDate);
+		//File targetLocation = new File("SeleniumFramework"+File.separator+"Results"+File.separator+folderName+File.separator+"Test_Reports_"+ zipDate);
+		File targetLocation = new File("SeleniumFramework"+File.separator+"Test_Reports_"+ zipDate);
 		copyflag = copyDirectory(sourceLocation,targetLocation);
 		Thread.sleep(2000);
 		if(copyflag) 
 		{
-			dir = "SeleniumFramework"+File.separator+"Results"+File.separator+folderName+File.separator+"Test_Reports_" + zipDate;
+			dir = "SeleniumFramework"+File.separator+"Test_Reports_" + zipDate;
+			//dir = "SeleniumFramework"+File.separator+"Results"+File.separator+folderName+File.separator+"Test_Reports_" + zipDate;
 		}
 		File f = new File(zipFileName);
 		boolean exists = f.exists();
@@ -325,7 +327,7 @@ try{
     * @modified by 06-July-2018
     * @modify date
     */
-        public static  boolean copyDirectory(File sourceLocation , File targetLocation) throws IOException {
+    /*    public static  boolean copyDirectory(File sourceLocation , File targetLocation) throws IOException {
         boolean dirFlag;
     dirFlag = true;
     try {
@@ -333,7 +335,7 @@ try{
     if (!targetLocation.exists()) {
     targetLocation.mkdir();
     }
-    /**
+    *//**
     String[] children = sourceLocation.list();
     for (int i=0; i<children.length; i++) {
     copyDirectory(new File(sourceLocation, children[i]),
@@ -351,7 +353,7 @@ try{
     }
     in.close();
     out.close();
-    */
+    *//*
     String folderName = sourceLocation.getAbsolutePath();
     File[] listDir = new File(folderName).listFiles();
 
@@ -374,10 +376,39 @@ try{
     dirFlag = false;
     }
     return dirFlag;
-    }
-	private static String Lowercase(String platform2) {
-		// TODO Auto-generated method stub
-		return null;
+    }*/
+    
+    public static  boolean copyDirectory(File sourceLocation , File targetLocation) throws IOException {
+    	boolean dirFlag;
+		dirFlag = true;
+		try {
+			if (sourceLocation.isDirectory()) {
+				if (!targetLocation.exists()) {
+					targetLocation.mkdir();
+			}
+
+				String[] children = sourceLocation.list();
+				for (int i=0; i<children.length; i++) {
+					copyDirectory(new File(sourceLocation, children[i]),
+				    new File(targetLocation, children[i]));
+				}
+	        } else {
+
+	        InputStream in = new FileInputStream(sourceLocation);
+			OutputStream out = new FileOutputStream(targetLocation);
+            // Copy the bits from instream to outstream
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+            	out.write(buf, 0, len);
+			}
+			in.close();
+			out.close();
+		}
+		} catch(NullPointerException e) {
+			dirFlag = false;
+		}
+		return dirFlag;
 	}
 
 	public  void writeStepExcel(String previoustc, int testFlag, String failedStep, String updateFlag, String qcExcelPath, int testcaseCounter) throws InvalidFormatException, IOException {
@@ -420,9 +451,10 @@ try{
 		System.out.println(folderPath);
 		File f = new File(folderPath);
 		boolean exists = f.exists();
-		  if (!exists) {
+		  //if (!exists) {
+		  if (exists) {	  
 			  deleteDir(f);
-			  f = new File(folderPath);
+			  //f = new File(folderPath);
 			  f.mkdir();
 		  }else{
 		 f.mkdir();
